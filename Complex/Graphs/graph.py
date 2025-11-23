@@ -91,7 +91,10 @@ class Graph:
         if vertex not in self._adjacency_list:
             return False
         
-        # Remove all edges to/from this vertex
+        # Remove all edges going out from this vertex (clear its adjacency list)
+        self._adjacency_list[vertex].clear()
+        
+        # Remove all edges coming into this vertex from other vertices
         if self._weighted:
             for v in self._adjacency_list:
                 if vertex in self._adjacency_list[v]:
