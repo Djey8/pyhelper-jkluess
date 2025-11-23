@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
-    name="pyhelper-fom",  # Package name on PyPI (change if needed)
+    name="pyhelper",  # Package name on PyPI
     version="0.1.0",
     author="Jannis Kluess",
     author_email="janniskluess@yahoo.de",
