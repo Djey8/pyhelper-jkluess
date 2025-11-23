@@ -2,7 +2,9 @@
 Basic Data Structures
 """
 
-# You can import specific classes/functions here to make them directly accessible
-# For example:
-# from .stack import Stack
-# from .linked_list import LinkedList
+# Import classes to make them easily accessible
+from .linked_list import LinkedList
+from .double_linked_list import DoubleLinkedList
+from .circular_linked_list import CircularLinkedList
+
+__all__ = ['LinkedList', 'DoubleLinkedList', 'CircularLinkedList']
