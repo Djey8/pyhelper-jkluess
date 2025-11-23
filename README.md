@@ -84,14 +84,14 @@ print(sl.find(10))  # 10
 
 ```
 PyHelper/
-├── Basic/Lists/          # Linked list implementations
-├── Complex/Graphs/       # Graph data structures
-└── Complex/SkipLists/    # Skip list implementations
+├── Grundlegende_Datenstrukuren/  # Basic data structures (Lists)
+├── Complex/Graphs/                # Graph data structures
+└── Complex/SkipLists/             # Skip list implementations
 ```
 
 ## Documentation
 
-- [Basic Lists](Basic/Lists/README.md) - LinkedList, DoubleLinkedList, CircularLinkedList
+- [Basic Lists](Grundlegende_Datenstrukuren/README.md) - LinkedList, DoubleLinkedList, CircularLinkedList
 - [Graphs](Complex/Graphs/README.md) - **Graph** (unified), UndirectedGraph, DirectedGraph, WeightedUndirectedGraph, WeightedDirectedGraph
   - Includes: Paths, cycles, connectivity, adjacency matrices, Dijkstra's algorithm
   - **NEW:** Unified `Graph` class adapts to all 4 types based on initialization
