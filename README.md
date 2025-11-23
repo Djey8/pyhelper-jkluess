@@ -37,6 +37,12 @@ pip install .
 pip install git+https://github.com/Djey8/PyHelper.git
 ```
 
+### Install from PyPI
+
+```bash
+pip install pyhelper-jkluess
+```
+
 ## Usage
 
 ### Importable Classes (Ready to Use)
