@@ -24,8 +24,8 @@ setup(
     ],
     python_requires=">=3.6",
     install_requires=[
-        # Add any dependencies your package needs
-        # For example: "numpy>=1.19.0",
+        "networkx>=2.5",
+        "matplotlib>=3.3.0",
     ],
     extras_require={
         "dev": [

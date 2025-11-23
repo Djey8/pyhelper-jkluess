@@ -1,21 +1,19 @@
 # PyHelper
 
-A collection of Python data structures for educational purposes at FOM.
+Python implementations of fundamental data structures for learning and practical use.
 
-## Features
+## What is this?
 
-This package includes implementations of:
+PyHelper provides clean, well-tested implementations of common data structures:
+- **Lists**: Linked, Double, Circular
+- **Graphs**: Undirected, Directed, Weighted (with visualization & Dijkstra)
+- **Skip Lists**: Deterministic and Probabilistic
 
-### Basic Data Structures
-- **Array** - Array implementations
-- **Linked List** - Single linked list
-- **Double Linked List** - Doubly linked list
-- **Circular Linked List** - Circular linked list
-- **Stack** - Stack data structure
-- **List** - List implementations
+## Prerequisites
 
-### Complex Data Structures
-- Coming soon...
+```bash
+pip install networkx matplotlib pytest
+```
 
 ## Installation
 
@@ -43,113 +41,60 @@ pip install git+https://github.com/Djey8/PyHelper.git
 pip install pyhelper-jkluess
 ```
 
-## Usage
+## Quick Start
 
-### Importable Classes (Ready to Use)
-
-The following classes are designed to be imported and used in your projects:
-
-#### LinkedList
+### Linked List
 ```python
-from Basic.linked_list import LinkedList, Node
+from Basic.Lists.linked_list import LinkedList
 
-# Create an empty linked list
-my_list = LinkedList()
-
-# Create a linked list from existing data
-my_list = LinkedList([1, 2, 3, 4, 5])
-
-# Add elements
-my_list.append(6)
-my_list.append(7)
-
-# Print the list
-my_list.print_list()  # Output: 1 2 3 4 5 6 7
-
-# Remove element at index
-my_list.remove(2)  # Removes the element at index 2
-
-# Get length
-print(my_list.length)
+ll = LinkedList()
+ll.append(10)
+ll.append(20)
+ll.print_list()  # 10 -> 20 -> None
 ```
 
-#### DoubleLinkedList
+### Graph
 ```python
-from Basic.double_linked_list import DoubleLinkedList
+from Complex.Graphs.undirected_graph import UndirectedGraph
 
-# Create a doubly linked list
-dll = DoubleLinkedList([10, 20, 30, 40])
-
-# Add elements
-dll.append(50)
-
-# Print forward
-dll.print_list(end=" -> ")
-
-# Print backward
-dll.print_list_backwards(end=" <- ")
-
-# Remove element
-dll.remove(1)  # Removes element at index 1
+g = UndirectedGraph()
+g.add_edge("A", "B")
+print(g.get_neighbors("A"))  # ['B']
+g.visualize()  # Opens matplotlib window
 ```
 
-#### CircularLinkedList
+### Skip List
 ```python
-from Basic.circular_linked_list import CircularLinkedList
+from Complex.SkipLists.probabilisticskiplist import ProbabilisticSkipList
 
-# Create a circular linked list
-cll = CircularLinkedList()
-
-# Add elements
-cll.append(1)
-cll.append(2)
-cll.append(3)
-
-# Print the list
-cll.print_list()  # Output: 1 -> 2 -> 3 -> (back to start)
-
-# Delete by value
-cll.delete(2)  # Removes the node with value 2
+sl = ProbabilisticSkipList()
+sl.add(10)
+sl.add(20)
+print(sl.find(10))  # 10
 ```
 
-### Educational Examples (For Learning/Reference)
+## Structure
 
-The following files contain educational examples showing different ways to work with data structures. **These are meant to be read and copied for learning purposes:**
-
-#### Array Examples (`Basic/array.py`)
-- Working with NumPy arrays
-- Array operations and manipulations
-- Examples of 1D and 2D arrays
-
-#### Stack Examples (`Basic/stack.py`)
-- Stack implementation using Python list
-- Stack using `collections.deque`
-- Stack using `queue.LifoQueue`
-
-#### List Examples (`Basic/list.py`)
-- Basic Python list operations
-- Reference for list methods
-
-### Quick Import Reference
-```python
-# Import all importable classes
-from Basic.linked_list import LinkedList, Node
-from Basic.double_linked_list import DoubleLinkedList
-from Basic.circular_linked_list import CircularLinkedList
+```
+PyHelper/
+├── Basic/Lists/          # Linked list implementations
+├── Complex/Graphs/       # Graph data structures
+└── Complex/SkipLists/    # Skip list implementations
 ```
 
-## Development
+## Documentation
 
-To install development dependencies:
+- [Basic Lists](Basic/Lists/README.md) - LinkedList, DoubleLinkedList, CircularLinkedList
+- [Graphs](Complex/Graphs/README.md) - UndirectedGraph, DirectedGraph, WeightedUndirectedGraph, WeightedDirectedGraph
+  - Includes: Paths, cycles, connectivity, adjacency matrices, Dijkstra's algorithm
+- [Skip Lists](Complex/SkipLists/README.md) - SkipList, ProbabilisticSkipList
+
+## Testing
 
 ```bash
-pip install -e ".[dev]"
+pytest tests/ -v  # 184 tests
 ```
 
 ## License
 
-MIT License - See LICENSE file for details
-
-## Author
-
-Jannis Kluess - FOM Student
+MIT License
