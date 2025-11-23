@@ -1,5 +1,5 @@
 import pytest
-from Basic.linked_list import LinkedList, Node
+from Basic.Lists.linked_list import LinkedList, Node
 
 
 class TestNode:

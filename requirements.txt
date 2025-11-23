@@ -1,0 +1,7 @@
+# Core dependencies for PyHelper package
+networkx>=2.5
+matplotlib>=3.3.0
+
+# Development dependencies (optional, for testing and development)
+pytest>=6.0.0
+pytest-cov>=2.10.0

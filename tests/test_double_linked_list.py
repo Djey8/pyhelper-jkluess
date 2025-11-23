@@ -1,5 +1,5 @@
 import pytest
-from Basic.double_linked_list import DoubleLinkedList, Node
+from Basic.Lists.double_linked_list import DoubleLinkedList, Node
 
 
 class TestDoubleNode:
