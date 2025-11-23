@@ -40,7 +40,7 @@ This is the **recommended** approach:
 ✨ **The GitHub Action will automatically:**
 - Build your package
 - Upload it to PyPI
-- Make it available via `pip install pyhelper`
+- Make it available via `pip install pyhelper-jkluess`
 
 ### Option 2: Manual Trigger
 1. Go to **Actions** tab in your repository
@@ -78,14 +78,14 @@ python -m twine upload --repository testpypi dist/*
 ```
 4. Test install:
 ```powershell
-pip install --index-url https://test.pypi.org/simple/ pyhelper
+pip install --index-url https://test.pypi.org/simple/ pyhelper-jkluess
 ```
 
 ## After Publishing
 
 Once published, anyone can install your package:
 ```bash
-pip install pyhelper
+pip install pyhelper-jkluess
 ```
 
 Then use it:
