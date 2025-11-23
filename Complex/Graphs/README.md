@@ -4,6 +4,45 @@ Graph implementations with visualization support.
 
 **Required:** `pip install networkx matplotlib`
 
+## Graph - Unified Graph Class (Recommended)
+
+**NEW:** A single, flexible `Graph` class that adapts to all 4 graph types based on initialization parameters.
+
+```python
+from Complex.Graphs.graph import Graph
+
+# Undirected unweighted graph
+g1 = Graph(directed=False, weighted=False)
+g1.add_edge("A", "B")
+g1.add_edge("B", "C")
+print(g1.is_directed)  # False
+print(g1.is_weighted)  # False
+
+# Directed unweighted graph
+g2 = Graph(directed=True, weighted=False)
+g2.add_edge("Task1", "Task2")
+print(g2.out_degree("Task1"))  # 1
+
+# Undirected weighted graph
+g3 = Graph(directed=False, weighted=True)
+g3.add_edge("Berlin", "Munich", 584)
+print(g3.get_edge_weight("Berlin", "Munich"))  # 584
+
+# Directed weighted graph
+g4 = Graph(directed=True, weighted=True)
+g4.add_edge("A", "B", 10)
+print(g4.weighted_out_degree("A"))  # 10
+```
+
+**Key Features:**
+- **Automatic Adaptation:** Methods behave according to graph type
+- **All Operations:** Supports all operations from specialized classes
+- **Graph Theory:** Full path/cycle/connectivity analysis
+- **Visualization:** Automatic styling based on type
+- **Matrix Conversion:** Bidirectional adjacency matrix support
+
+**Use this class for:** Maximum flexibility when graph type may change or when working with multiple graph types in one project.
+
 ## UndirectedGraph - Symmetric Edges
 
 Edges work both ways: A—B means A connects to B and B connects to A.
@@ -126,24 +165,29 @@ g.get_edges()
 g.get_neighbors("A")
 
 # Weighted graphs only
-g.get_weight("A", "B")            # Get edge weight
-g.get_neighbors_with_weights("A") # {neighbor: weight, ...}
-g.dijkstra("A", "B")              # Shortest path (path, distance)
+g.get_edge_weight("A", "B")       # Get edge weight (unified Graph class)
+g.get_weight("A", "B")            # Get edge weight (specialized classes)
+g.get_weighted_neighbors("A")     # [(neighbor, weight), ...]
+g.dijkstra("A", "B")              # Shortest path (path, distance) - specialized classes
 
 # DirectedGraph only
 g.get_predecessors("A")           # Who points to A?
 g.in_degree("A")                  # How many point to A?
 g.out_degree("A")                 # How many does A point to?
 
-# Graph theory (Directed & Undirected)
+# Graph theory (all graph types)
 g.degree("A")                     # Total degree
 g.is_simple_graph()               # Check for self-loops
-g.get_graph_info()                # Statistics dict
-g.print_graph_analysis()          # Detailed analysis
+g.get_graph_info()                # Statistics dict (specialized classes)
+g.print_graph_analysis()          # Detailed analysis (specialized classes)
+
+# Unified Graph class properties
+g.is_directed                     # Check if directed
+g.is_weighted                     # Check if weighted
 
 # Visualize
 g.visualize(title="My Graph", figsize=(12, 8))
-g.visualize(show_weights=True)    # Weighted graphs
+g.visualize(show_weights=True)    # Weighted graphs (specialized classes)
 ```
 
 ## Graph Theory Concepts

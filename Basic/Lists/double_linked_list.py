@@ -188,9 +188,7 @@ class DoubleLinkedList:
             else:
                 print(node.data, end=end)
             node = node.prev
-            
-            
-            
+                     
 # Fill nodes and header of the doubly linked list
 my_list = DoubleLinkedList()
 # 1st Node

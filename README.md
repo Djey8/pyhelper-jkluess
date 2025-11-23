@@ -6,7 +6,7 @@ Python implementations of fundamental data structures for learning and practical
 
 PyHelper provides clean, well-tested implementations of common data structures:
 - **Lists**: Linked, Double, Circular
-- **Graphs**: Undirected, Directed, Weighted (with visualization & Dijkstra)
+- **Graphs**: Unified Graph class + specialized types (Undirected, Directed, Weighted) with visualization & graph theory operations
 - **Skip Lists**: Deterministic and Probabilistic
 
 ## Prerequisites
@@ -53,14 +53,21 @@ ll.append(20)
 ll.print_list()  # 10 -> 20 -> None
 ```
 
-### Graph
+### Graph (Unified Class - Recommended)
 ```python
-from Complex.Graphs.undirected_graph import UndirectedGraph
+from Complex.Graphs.graph import Graph
 
-g = UndirectedGraph()
-g.add_edge("A", "B")
+# Create any graph type with parameters
+g = Graph(directed=False, weighted=True)
+g.add_edge("A", "B", 10)
 print(g.get_neighbors("A"))  # ['B']
+print(g.get_edge_weight("A", "B"))  # 10
 g.visualize()  # Opens matplotlib window
+
+# Or use specialized classes
+from Complex.Graphs.undirected_graph import UndirectedGraph
+g2 = UndirectedGraph()
+g2.add_edge("A", "B")
 ```
 
 ### Skip List
@@ -85,8 +92,9 @@ PyHelper/
 ## Documentation
 
 - [Basic Lists](Basic/Lists/README.md) - LinkedList, DoubleLinkedList, CircularLinkedList
-- [Graphs](Complex/Graphs/README.md) - UndirectedGraph, DirectedGraph, WeightedUndirectedGraph, WeightedDirectedGraph
+- [Graphs](Complex/Graphs/README.md) - **Graph** (unified), UndirectedGraph, DirectedGraph, WeightedUndirectedGraph, WeightedDirectedGraph
   - Includes: Paths, cycles, connectivity, adjacency matrices, Dijkstra's algorithm
+  - **NEW:** Unified `Graph` class adapts to all 4 types based on initialization
 - [Skip Lists](Complex/SkipLists/README.md) - SkipList, ProbabilisticSkipList
 
 ## Testing
