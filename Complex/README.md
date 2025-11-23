@@ -6,6 +6,7 @@ Advanced structures: Graphs and Skip Lists.
 
 **Required:** `pip install networkx matplotlib`
 
+- **Graph** - **NEW!** Unified class supporting all 4 graph types (recommended)
 - **UndirectedGraph** - Bidirectional edges (social networks, maps)
 - **DirectedGraph** - One-way edges (dependencies, workflows)
 - **WeightedUndirectedGraph** - Bidirectional with costs (road networks, Dijkstra)
@@ -19,9 +20,11 @@ Advanced structures: Graphs and Skip Lists.
 - Shortest paths (Dijkstra for weighted graphs)
 
 ```python
-from Complex.Graphs.undirected_graph import UndirectedGraph
+# Using the unified Graph class (recommended)
+from Complex.Graphs.graph import Graph
 
-g = UndirectedGraph()
+# Create any graph type with parameters
+g = Graph(directed=False, weighted=False)
 g.add_edge("A", "B")
 g.add_edge("B", "C")
 
@@ -34,6 +37,10 @@ print(g.is_connected())
 matrix = g.get_adjacency_matrix()
 
 g.visualize()
+
+# Or use specialized classes
+from Complex.Graphs.undirected_graph import UndirectedGraph
+g2 = UndirectedGraph()
 ```
 
 See [Graphs README](Graphs/README.md) for details.

@@ -1,12 +1,22 @@
-import networkx as nx
-from typing import List, Set, Dict, Optional, Any, Union
+from typing import List, Dict, Optional, Any, Union
+try:
+    from .graph import Graph
+except ImportError:
+    from graph import Graph
 
-import matplotlib.pyplot as plt
+"""
+Weighted Directed Graph Implementation
+
+This module provides a weighted directed graph that inherits from the base Graph class.
+All common functionality is inherited; this class only provides convenience methods
+and specific behavior for weighted directed graphs.
+"""
 
 
-class WeightedDirectedGraph:
+class WeightedDirectedGraph(Graph):
     """
-    A weighted directed graph implementation using adjacency list representation.
+    A weighted directed graph implementation.
+    Inherits all functionality from Graph with directed=True, weighted=True.
     """
     
     def __init__(self, data: Optional[Dict[Any, List[tuple]]] = None):
@@ -16,274 +26,31 @@ class WeightedDirectedGraph:
         Args:
             data: Optional dictionary where keys are vertices and values are lists of tuples (neighbor, weight)
         """
-        self._adjacency_list: Dict[Any, Dict[Any, Union[int, float]]] = {}
-        
-        if data:
-            for vertex, neighbors in data.items():
-                self.add_vertex(vertex)
-                for neighbor_data in neighbors:
-                    if isinstance(neighbor_data, tuple) and len(neighbor_data) == 2:
-                        neighbor, weight = neighbor_data
-                        self.add_edge(vertex, neighbor, weight)
-                    else:
-                        # Assume weight 1 if not provided as tuple
-                        self.add_edge(vertex, neighbor_data, 1)
+        super().__init__(directed=True, weighted=True, data=data)
     
-    def add_vertex(self, vertex: Any) -> bool:
-        """
-        Add a vertex to the graph.
-        
-        Args:
-            vertex: The vertex to add
-            
-        Returns:
-            bool: True if vertex was added, False if it already exists
-        """
-        if vertex not in self._adjacency_list:
-            self._adjacency_list[vertex] = {}
-            return True
-        return False
+    # All core methods (add_vertex, remove_vertex, add_edge, remove_edge, has_vertex, 
+    # has_edge, get_vertices, get_neighbors, get_predecessors, get_edges, vertex_count, 
+    # edge_count, update_edge_weight, get_edge_weight, get_weighted_neighbors, 
+    # get_weighted_predecessors) are inherited from Graph and work correctly for 
+    # weighted directed graphs.
     
-    def remove_vertex(self, vertex: Any) -> bool:
-        """
-        Remove a vertex and all its edges from the graph.
-        
-        Args:
-            vertex: The vertex to remove
-            
-        Returns:
-            bool: True if vertex was removed, False if it doesn't exist
-        """
-        if vertex not in self._adjacency_list:
-            return False
-        
-        # Remove all edges pointing to this vertex
-        for v in self._adjacency_list:
-            if vertex in self._adjacency_list[v]:
-                del self._adjacency_list[v][vertex]
-        
-        # Remove the vertex itself
-        del self._adjacency_list[vertex]
-        return True
+    # Degree methods (degree, in_degree, out_degree, weighted_degree, weighted_in_degree, 
+    # weighted_out_degree) are inherited from Graph.
     
-    def add_edge(self, from_vertex: Any, to_vertex: Any, weight: Union[int, float] = 1) -> bool:
-        """
-        Add a weighted directed edge from one vertex to another.
-        
-        Args:
-            from_vertex: Source vertex
-            to_vertex: Destination vertex
-            weight: Weight of the edge (default: 1)
-            
-        Returns:
-            bool: True if edge was added, False if edge already exists
-        """
-        if from_vertex not in self._adjacency_list:
-            self.add_vertex(from_vertex)
-        if to_vertex not in self._adjacency_list:
-            self.add_vertex(to_vertex)
-        
-        if to_vertex not in self._adjacency_list[from_vertex]:
-            self._adjacency_list[from_vertex][to_vertex] = weight
-            return True
-        return False
+    # Path and reachability methods (find_path, is_reachable, is_simple_path, path_length,
+    # path_weight) are inherited from Graph.
     
-    def remove_edge(self, from_vertex: Any, to_vertex: Any) -> bool:
-        """
-        Remove a directed edge between two vertices.
-        
-        Args:
-            from_vertex: Source vertex
-            to_vertex: Destination vertex
-            
-        Returns:
-            bool: True if edge was removed, False if edge doesn't exist
-        """
-        if (from_vertex in self._adjacency_list and
-            to_vertex in self._adjacency_list[from_vertex]):
-            
-            del self._adjacency_list[from_vertex][to_vertex]
-            return True
-        return False
+    # Cycle detection methods (has_cycle, find_cycles, is_acyclic) 
+    # are inherited from Graph.
     
-    def update_edge_weight(self, from_vertex: Any, to_vertex: Any, weight: Union[int, float]) -> bool:
-        """
-        Update the weight of an existing edge.
-        
-        Args:
-            from_vertex: Source vertex
-            to_vertex: Destination vertex
-            weight: New weight for the edge
-            
-        Returns:
-            bool: True if weight was updated, False if edge doesn't exist
-        """
-        if (from_vertex in self._adjacency_list and
-            to_vertex in self._adjacency_list[from_vertex]):
-            
-            self._adjacency_list[from_vertex][to_vertex] = weight
-            return True
-        return False
+    # Connectivity methods (is_strongly_connected, get_strongly_connected_components) 
+    # are inherited from Graph.
     
-    def get_edge_weight(self, from_vertex: Any, to_vertex: Any) -> Optional[Union[int, float]]:
-        """
-        Get the weight of an edge.
-        
-        Args:
-            from_vertex: Source vertex
-            to_vertex: Destination vertex
-            
-        Returns:
-            Weight of the edge or None if edge doesn't exist
-        """
-        if (from_vertex in self._adjacency_list and
-            to_vertex in self._adjacency_list[from_vertex]):
-            return self._adjacency_list[from_vertex][to_vertex]
-        return None
+    # Adjacency matrix methods (get_adjacency_matrix) are inherited from Graph.
     
-    def has_vertex(self, vertex: Any) -> bool:
-        """Check if a vertex exists in the graph."""
-        return vertex in self._adjacency_list
+    # Visualization method (visualize) is inherited from Graph.
     
-    def has_edge(self, from_vertex: Any, to_vertex: Any) -> bool:
-        """Check if a directed edge exists from one vertex to another."""
-        return (from_vertex in self._adjacency_list and 
-                to_vertex in self._adjacency_list[from_vertex])
-    
-    def get_vertices(self) -> List[Any]:
-        """Get all vertices in the graph."""
-        return list(self._adjacency_list.keys())
-    
-    def get_neighbors(self, vertex: Any) -> List[Any]:
-        """Get all outgoing neighbors of a vertex."""
-        if vertex in self._adjacency_list:
-            return list(self._adjacency_list[vertex].keys())
-        return []
-    
-    def get_weighted_neighbors(self, vertex: Any) -> List[tuple]:
-        """
-        Get all outgoing neighbors with their weights.
-        
-        Args:
-            vertex: The vertex to get neighbors for
-            
-        Returns:
-            List of tuples (neighbor, weight)
-        """
-        if vertex in self._adjacency_list:
-            return [(neighbor, weight) for neighbor, weight in self._adjacency_list[vertex].items()]
-        return []
-    
-    def get_predecessors(self, vertex: Any) -> List[Any]:
-        """
-        Get all incoming neighbors (predecessors) of a vertex.
-        
-        Args:
-            vertex: The vertex to get predecessors for
-            
-        Returns:
-            List of vertices that have edges pointing to the given vertex
-        """
-        if vertex not in self._adjacency_list:
-            return []
-        
-        predecessors = []
-        for v in self._adjacency_list:
-            if vertex in self._adjacency_list[v]:
-                predecessors.append(v)
-        return predecessors
-    
-    def get_weighted_predecessors(self, vertex: Any) -> List[tuple]:
-        """
-        Get all incoming neighbors (predecessors) with their weights.
-        
-        Args:
-            vertex: The vertex to get predecessors for
-            
-        Returns:
-            List of tuples (predecessor, weight)
-        """
-        if vertex not in self._adjacency_list:
-            return []
-        
-        predecessors = []
-        for v in self._adjacency_list:
-            if vertex in self._adjacency_list[v]:
-                weight = self._adjacency_list[v][vertex]
-                predecessors.append((v, weight))
-        return predecessors
-    
-    def in_degree(self, vertex: Any) -> int:
-        """
-        Get the in-degree of a vertex (number of incoming edges).
-        
-        Args:
-            vertex: The vertex to get in-degree for
-            
-        Returns:
-            Number of edges pointing to the vertex
-        """
-        return len(self.get_predecessors(vertex))
-    
-    def out_degree(self, vertex: Any) -> int:
-        """
-        Get the out-degree of a vertex (number of outgoing edges).
-        
-        Args:
-            vertex: The vertex to get out-degree for
-            
-        Returns:
-            Number of edges pointing from the vertex
-        """
-        if vertex not in self._adjacency_list:
-            return 0
-        return len(self._adjacency_list[vertex])
-    
-    def weighted_in_degree(self, vertex: Any) -> Union[int, float]:
-        """
-        Get the weighted in-degree of a vertex (sum of incoming edge weights).
-        
-        Args:
-            vertex: The vertex to get weighted in-degree for
-            
-        Returns:
-            Sum of weights of edges pointing to the vertex
-        """
-        return sum(weight for _, weight in self.get_weighted_predecessors(vertex))
-    
-    def weighted_out_degree(self, vertex: Any) -> Union[int, float]:
-        """
-        Get the weighted out-degree of a vertex (sum of outgoing edge weights).
-        
-        Args:
-            vertex: The vertex to get weighted out-degree for
-            
-        Returns:
-            Sum of weights of edges pointing from the vertex
-        """
-        if vertex not in self._adjacency_list:
-            return 0
-        return sum(self._adjacency_list[vertex].values())
-    
-    def get_edges(self) -> List[tuple]:
-        """Get all weighted directed edges in the graph."""
-        edges = []
-        for vertex in self._adjacency_list:
-            for neighbor, weight in self._adjacency_list[vertex].items():
-                edges.append((vertex, neighbor, weight))
-        return edges
-    
-    def vertex_count(self) -> int:
-        """Get the number of vertices in the graph."""
-        return len(self._adjacency_list)
-    
-    def edge_count(self) -> int:
-        """Get the number of directed edges in the graph."""
-        return sum(len(neighbors) for neighbors in self._adjacency_list.values())
-    
-    def total_weight(self) -> Union[int, float]:
-        """Get the total weight of all edges in the graph."""
-        return sum(weight for _, _, weight in self.get_edges())
+    # Weight method (total_weight) is inherited from Graph.
     
     def get_weight_statistics(self) -> Dict[str, Union[int, float]]:
         """
@@ -303,91 +70,13 @@ class WeightedDirectedGraph:
             'total_weight': sum(weights)
         }
     
-    def visualize(self, title: str = "Weighted Directed Graph", figsize: tuple = (12, 9), positions: Optional[Dict[Any, tuple]] = None):
-        """
-        Visualize the weighted graph using matplotlib and networkx.
-        
-        Args:
-            title: Title for the graph visualization
-            figsize: Figure size as (width, height)
-            positions: Optional dictionary mapping vertices to (x, y) coordinates
-        """
-        if not self._adjacency_list:
-            print("Graph is empty - nothing to visualize")
-            return
-        
-        # Create NetworkX directed graph
-        G = nx.DiGraph()
-        
-        # Add vertices
-        for vertex in self._adjacency_list:
-            G.add_node(vertex)
-        
-        # Add weighted directed edges
-        for from_vertex, to_vertex, weight in self.get_edges():
-            G.add_edge(from_vertex, to_vertex, weight=weight)
-        
-        # Create visualization
-        plt.figure(figsize=figsize)
-        
-        # Use custom positions if provided, otherwise use spring layout
-        if positions:
-            pos = positions
-        else:
-            pos = nx.spring_layout(G, seed=42)
-        
-        # Draw nodes and edges
-        nx.draw(G, pos, 
-                with_labels=True, 
-                node_color='lightblue',
-                node_size=800,
-                font_size=12,
-                font_weight='bold',
-                edge_color='gray',
-                width=2,
-                arrows=True,
-                arrowsize=20,
-                arrowstyle='->')
-        
-        # Draw edge labels (weights)
-        edge_labels = nx.get_edge_attributes(G, 'weight')
-        nx.draw_networkx_edge_labels(G, pos, edge_labels, font_size=10, font_color='red')
-        
-        plt.title(title, fontsize=16, fontweight='bold')
-        plt.axis('off')
-        plt.tight_layout()
-        plt.show()
-    
-    def degree(self, vertex: Any) -> int:
-        """
-        Get the total degree of a vertex (in-degree + out-degree).
-        
-        Args:
-            vertex: The vertex to get the degree for
-            
-        Returns:
-            int: The total degree of the vertex, or 0 if vertex doesn't exist
-        """
-        if vertex not in self._adjacency_list:
-            return 0
-        return self.in_degree(vertex) + self.out_degree(vertex)
-    
-    def weighted_degree(self, vertex: Any) -> Union[int, float]:
-        """
-        Get the total weighted degree of a vertex (weighted in-degree + weighted out-degree).
-        
-        Args:
-            vertex: The vertex to get the weighted degree for
-            
-        Returns:
-            The total weighted degree of the vertex, or 0 if vertex doesn't exist
-        """
-        if vertex not in self._adjacency_list:
-            return 0
-        return self.weighted_in_degree(vertex) + self.weighted_out_degree(vertex)
-
     def get_degree_sequence(self) -> Dict[str, List[int]]:
-        """Get the degree sequences of the graph (in-degrees, out-degrees, and total degrees)."""
+        """
+        Get the degree sequences of the graph (in-degrees, out-degrees, and total degrees).
+        
+        Returns:
+            Dict with 'in_degrees', 'out_degrees', and 'total_degrees' sorted in descending order
+        """
         in_degrees = [self.in_degree(vertex) for vertex in self._adjacency_list]
         out_degrees = [self.out_degree(vertex) for vertex in self._adjacency_list]
         total_degrees = [self.degree(vertex) for vertex in self._adjacency_list]
@@ -399,31 +88,29 @@ class WeightedDirectedGraph:
         }
     
     def get_weighted_degree_sequence(self) -> Dict[str, List[Union[int, float]]]:
-        """Get the weighted degree sequences of the graph."""
-        weighted_in_degrees = [self.weighted_in_degree(vertex) for vertex in self._adjacency_list]
-        weighted_out_degrees = [self.weighted_out_degree(vertex) for vertex in self._adjacency_list]
-        weighted_total_degrees = [self.weighted_degree(vertex) for vertex in self._adjacency_list]
-        
-        return {
-            'weighted_in_degrees': sorted(weighted_in_degrees, reverse=True),
-            'weighted_out_degrees': sorted(weighted_out_degrees, reverse=True),
-            'weighted_total_degrees': sorted(weighted_total_degrees, reverse=True)
-        }
-
-    def is_simple_graph(self) -> bool:
         """
-        Check if the graph is simple (no self-loops).
+        Get the weighted degree sequences (in-degrees, out-degrees, and total degrees).
         
         Returns:
-            bool: True if the graph is simple, False otherwise
+            Dict with 'weighted_in_degrees', 'weighted_out_degrees', and 'weighted_total_degrees'
         """
-        for vertex in self._adjacency_list:
-            if vertex in self._adjacency_list[vertex]:
-                return False
-        return True
-
+        weighted_in = [self.weighted_in_degree(vertex) for vertex in self._adjacency_list]
+        weighted_out = [self.weighted_out_degree(vertex) for vertex in self._adjacency_list]
+        weighted_total = [self.weighted_degree(vertex) for vertex in self._adjacency_list]
+        
+        return {
+            'weighted_in_degrees': sorted(weighted_in, reverse=True),
+            'weighted_out_degrees': sorted(weighted_out, reverse=True),
+            'weighted_total_degrees': sorted(weighted_total, reverse=True)
+        }
+    
     def get_graph_info(self) -> Dict[str, Any]:
-        """Get comprehensive information about the weighted directed graph structure."""
+        """
+        Get comprehensive information about the weighted directed graph structure.
+        
+        Returns:
+            Dict containing various graph properties and statistics
+        """
         if not self._adjacency_list:
             return {
                 "vertices": 0,
@@ -431,9 +118,25 @@ class WeightedDirectedGraph:
                 "total_weight": 0,
                 "is_simple": True,
                 "degree_sequences": {'in_degrees': [], 'out_degrees': [], 'total_degrees': []},
-                "weighted_degree_sequences": {'weighted_in_degrees': [], 'weighted_out_degrees': [], 'weighted_total_degrees': []},
-                "weight_statistics": {'min_weight': 0, 'max_weight': 0, 'average_weight': 0, 'total_weight': 0},
-                "vertex_degrees": {}
+                "weighted_degree_sequences": {
+                    'weighted_in_degrees': [],
+                    'weighted_out_degrees': [],
+                    'weighted_total_degrees': []
+                },
+                "min_in_degree": 0,
+                "max_in_degree": 0,
+                "min_out_degree": 0,
+                "max_out_degree": 0,
+                "average_in_degree": 0.0,
+                "average_out_degree": 0.0,
+                "min_weighted_in_degree": 0,
+                "max_weighted_in_degree": 0,
+                "min_weighted_out_degree": 0,
+                "max_weighted_out_degree": 0,
+                "average_weighted_in_degree": 0.0,
+                "average_weighted_out_degree": 0.0,
+                "vertex_degrees": {},
+                "weight_statistics": {}
             }
         
         vertex_degrees = {
@@ -448,6 +151,11 @@ class WeightedDirectedGraph:
             for vertex in self._adjacency_list
         }
         
+        in_degrees = [info['in_degree'] for info in vertex_degrees.values()]
+        out_degrees = [info['out_degree'] for info in vertex_degrees.values()]
+        weighted_in = [info['weighted_in_degree'] for info in vertex_degrees.values()]
+        weighted_out = [info['weighted_out_degree'] for info in vertex_degrees.values()]
+        
         return {
             "vertices": self.vertex_count(),
             "edges": self.edge_count(),
@@ -455,415 +163,30 @@ class WeightedDirectedGraph:
             "is_simple": self.is_simple_graph(),
             "degree_sequences": self.get_degree_sequence(),
             "weighted_degree_sequences": self.get_weighted_degree_sequence(),
-            "weight_statistics": self.get_weight_statistics(),
-            "vertex_degrees": vertex_degrees
+            "min_in_degree": min(in_degrees) if in_degrees else 0,
+            "max_in_degree": max(in_degrees) if in_degrees else 0,
+            "min_out_degree": min(out_degrees) if out_degrees else 0,
+            "max_out_degree": max(out_degrees) if out_degrees else 0,
+            "average_in_degree": sum(in_degrees) / len(in_degrees) if in_degrees else 0.0,
+            "average_out_degree": sum(out_degrees) / len(out_degrees) if out_degrees else 0.0,
+            "min_weighted_in_degree": min(weighted_in) if weighted_in else 0,
+            "max_weighted_in_degree": max(weighted_in) if weighted_in else 0,
+            "min_weighted_out_degree": min(weighted_out) if weighted_out else 0,
+            "max_weighted_out_degree": max(weighted_out) if weighted_out else 0,
+            "average_weighted_in_degree": sum(weighted_in) / len(weighted_in) if weighted_in else 0.0,
+            "average_weighted_out_degree": sum(weighted_out) / len(weighted_out) if weighted_out else 0.0,
+            "vertex_degrees": vertex_degrees,
+            "weight_statistics": self.get_weight_statistics()
         }
-
-    def print_graph_analysis(self):
-        """Print a detailed analysis of the weighted directed graph."""
-        info = self.get_graph_info()
-        
-        print("=== Weighted Directed Graph Theory Analysis ===")
-        print(f"Weighted Directed Graph G = (V, E, w) with |V| = {info['vertices']} vertices and |E| = {info['edges']} weighted edges")
-        print(f"Total weight of all edges: {info['total_weight']}")
-        print()
-        
-        print("Basic Properties:")
-        print(f"  • Simple graph (no self-loops): {'Yes' if info['is_simple'] else 'No'}")
-        print()
-        
-        print("Weight Statistics:")
-        ws = info['weight_statistics']
-        print(f"  • Minimum edge weight: {ws['min_weight']}")
-        print(f"  • Maximum edge weight: {ws['max_weight']}")
-        print(f"  • Average edge weight: {ws['average_weight']:.2f}")
-        print(f"  • Total weight: {ws['total_weight']}")
-        print()
-        
-        print("Degree Sequences (Unweighted):")
-        ds = info['degree_sequences']
-        print(f"  • In-degree sequence: {ds['in_degrees']}")
-        print(f"  • Out-degree sequence: {ds['out_degrees']}")
-        print(f"  • Total degree sequence: {ds['total_degrees']}")
-        print()
-        
-        print("Weighted Degree Sequences:")
-        wds = info['weighted_degree_sequences']
-        print(f"  • Weighted in-degree sequence: {wds['weighted_in_degrees']}")
-        print(f"  • Weighted out-degree sequence: {wds['weighted_out_degrees']}")
-        print(f"  • Weighted total degree sequence: {wds['weighted_total_degrees']}")
-        print()
-        
-        print("Individual Vertex Analysis:")
-        for vertex in sorted(info['vertex_degrees'].keys()):
-            degrees = info['vertex_degrees'][vertex]
-            weighted_successors = sorted(self.get_weighted_neighbors(vertex))
-            weighted_predecessors = sorted(self.get_weighted_predecessors(vertex))
-            print(f"  Vertex {vertex}:")
-            print(f"    • deg⁺({vertex}) = {degrees['out_degree']}, weighted deg⁺({vertex}) = {degrees['weighted_out_degree']}")
-            print(f"      Successors: {weighted_successors}")
-            print(f"    • deg⁻({vertex}) = {degrees['in_degree']}, weighted deg⁻({vertex}) = {degrees['weighted_in_degree']}")
-            print(f"      Predecessors: {weighted_predecessors}")
-            print(f"    • Total: deg({vertex}) = {degrees['total_degree']}, weighted deg({vertex}) = {degrees['weighted_total_degree']}")
-        print()
-        
-        print("Weighted Graph Theory Concepts:")
-        print("  • Edge weight: w(u,v) = weight of directed edge from u to v")
-        print("  • Weighted out-degree: w⁺(v) = Σ w(v,u) for all edges (v,u)")
-        print("  • Weighted in-degree: w⁻(v) = Σ w(u,v) for all edges (u,v)")
-        print("  • Weighted total degree: w(v) = w⁺(v) + w⁻(v)")
-
-    # Path and reachability methods
-    def find_path(self, start: Any, end: Any) -> Optional[List[Any]]:
-        """
-        Find a path from start vertex to end vertex using BFS (unweighted shortest path).
-        
-        Theory: A path (Weg/Pfad) from v to v' is a sequence of vertices v₀, v₁, ..., vₖ where:
-        - v₀ = v (start vertex)
-        - vₖ = v' (end vertex)
-        - (vᵢ, vᵢ₊₁) ∈ E for i = 0, ..., k-1 (directed edges)
-        - k is the length of the path
-        
-        Note: This finds a path ignoring weights. For weighted shortest path, use dijkstra().
-        
-        Args:
-            start: Starting vertex
-            end: Target vertex
-            
-        Returns:
-            List of vertices forming the path, or None if no path exists
-        """
-        if start not in self._adjacency_list or end not in self._adjacency_list:
-            return None
-        
-        if start == end:
-            return [start]
-        
-        # BFS to find shortest path (by number of edges)
-        queue = [(start, [start])]
-        visited = {start}
-        
-        while queue:
-            vertex, path = queue.pop(0)
-            
-            for neighbor in self._adjacency_list[vertex]:
-                if neighbor == end:
-                    return path + [neighbor]
-                
-                if neighbor not in visited:
-                    visited.add(neighbor)
-                    queue.append((neighbor, path + [neighbor]))
-        
-        return None
-    
-    def is_reachable(self, start: Any, end: Any) -> bool:
-        """
-        Check if end vertex is reachable from start vertex following directed edges.
-        
-        Theory: Vertex v is reachable from vertex u if there exists a directed path from u to v.
-        
-        Args:
-            start: Starting vertex
-            end: Target vertex
-            
-        Returns:
-            True if end is reachable from start, False otherwise
-        """
-        return self.find_path(start, end) is not None
-    
-    def path_length(self, path: List[Any]) -> int:
-        """
-        Calculate the length of a path (number of edges).
-        
-        Theory: The length of a path is the number of edges in the path (k in v₀, v₁, ..., vₖ).
-        
-        Args:
-            path: List of vertices forming a path
-            
-        Returns:
-            Length of the path (number of edges)
-        """
-        if not path or len(path) < 2:
-            return 0
-        return len(path) - 1
-    
-    def path_weight(self, path: List[Any]) -> Union[int, float]:
-        """
-        Calculate the total weight of a path.
-        
-        Args:
-            path: List of vertices forming a path
-            
-        Returns:
-            Sum of edge weights in the path, or 0 if path is invalid
-        """
-        if not path or len(path) < 2:
-            return 0
-        
-        total = 0
-        for i in range(len(path) - 1):
-            if path[i] not in self._adjacency_list or path[i+1] not in self._adjacency_list[path[i]]:
-                return 0  # Invalid path
-            total += self._adjacency_list[path[i]][path[i+1]]
-        
-        return total
-    
-    def is_simple_path(self, path: List[Any]) -> bool:
-        """
-        Check if a path is simple (all vertices are pairwise distinct).
-        
-        Theory: A path is simple if all vertices in the path are pairwise different.
-        
-        Args:
-            path: List of vertices forming a path
-            
-        Returns:
-            True if the path is simple, False otherwise
-        """
-        if not path:
-            return True
-        return len(path) == len(set(path))
-    
-    # Cycle detection methods
-    def has_cycle(self) -> bool:
-        """
-        Check if the graph contains any cycle (using DFS).
-        
-        Theory: A cycle (Zyklus) is a path v₀, v₁, ..., vₖ where v₀ = vₖ.
-        A circle (Kreis) is a cycle where v₀, v₁, ..., vₖ₋₁ are pairwise distinct.
-        Trivial cycles (length 1 or 2) are often not considered.
-        A graph without cycles is called acyclic (azyklisch).
-        For directed graphs, this is called a DAG (Directed Acyclic Graph).
-        
-        Returns:
-            True if the graph contains a cycle, False otherwise
-        """
-        if not self._adjacency_list:
-            return False
-        
-        WHITE, GRAY, BLACK = 0, 1, 2
-        color = {vertex: WHITE for vertex in self._adjacency_list}
-        
-        def dfs_has_cycle(vertex: Any) -> bool:
-            color[vertex] = GRAY
-            
-            for neighbor in self._adjacency_list[vertex]:
-                if color[neighbor] == GRAY:  # Back edge found
-                    return True
-                if color[neighbor] == WHITE and dfs_has_cycle(neighbor):
-                    return True
-            
-            color[vertex] = BLACK
-            return False
-        
-        for vertex in self._adjacency_list:
-            if color[vertex] == WHITE:
-                if dfs_has_cycle(vertex):
-                    return True
-        
-        return False
-    
-    def find_cycles(self) -> List[List[Any]]:
-        """
-        Find all simple cycles in the directed graph using DFS.
-        
-        Theory: Returns all simple cycles (Kreise) where vertices are pairwise distinct.
-        
-        Returns:
-            List of cycles, where each cycle is a list of vertices
-        """
-        cycles = []
-        visited = set()
-        path_stack = []
-        path_set = set()
-        
-        def dfs_find_cycles(vertex: Any):
-            visited.add(vertex)
-            path_stack.append(vertex)
-            path_set.add(vertex)
-            
-            for neighbor in self._adjacency_list[vertex]:
-                if neighbor in path_set:
-                    # Found a cycle
-                    cycle_start = path_stack.index(neighbor)
-                    cycle = path_stack[cycle_start:]
-                    if cycle not in cycles:
-                        cycles.append(cycle[:])
-                elif neighbor not in visited:
-                    dfs_find_cycles(neighbor)
-            
-            path_stack.pop()
-            path_set.remove(vertex)
-        
-        for vertex in self._adjacency_list:
-            if vertex not in visited:
-                dfs_find_cycles(vertex)
-        
-        return cycles
-    
-    def is_acyclic(self) -> bool:
-        """
-        Check if the graph is acyclic (DAG - Directed Acyclic Graph).
-        
-        Theory: An acyclic directed graph contains no cycles. Such graphs are called DAGs.
-        
-        Returns:
-            True if the graph is acyclic, False otherwise
-        """
-        return not self.has_cycle()
-    
-    # Connectivity methods
-    def is_strongly_connected(self) -> bool:
-        """
-        Check if the graph is strongly connected.
-        
-        Theory: A directed graph G is strongly connected (stark zusammenhängend) if every
-        vertex is reachable from every other vertex following directed edges.
-        
-        Returns:
-            True if the graph is strongly connected, False otherwise
-        """
-        if not self._adjacency_list:
-            return True
-        
-        # Check if all vertices are reachable from first vertex
-        first_vertex = next(iter(self._adjacency_list))
-        
-        # Forward DFS from first vertex
-        visited = set()
-        stack = [first_vertex]
-        
-        while stack:
-            vertex = stack.pop()
-            if vertex in visited:
-                continue
-            visited.add(vertex)
-            for neighbor in self._adjacency_list[vertex]:
-                if neighbor not in visited:
-                    stack.append(neighbor)
-        
-        if len(visited) != len(self._adjacency_list):
-            return False
-        
-        # Reverse DFS: check if all vertices can reach first vertex
-        # Create reverse graph
-        reverse_adj = {v: {} for v in self._adjacency_list}
-        for vertex in self._adjacency_list:
-            for neighbor, weight in self._adjacency_list[vertex].items():
-                reverse_adj[neighbor][vertex] = weight
-        
-        visited = set()
-        stack = [first_vertex]
-        
-        while stack:
-            vertex = stack.pop()
-            if vertex in visited:
-                continue
-            visited.add(vertex)
-            for neighbor in reverse_adj[vertex]:
-                if neighbor not in visited:
-                    stack.append(neighbor)
-        
-        return len(visited) == len(self._adjacency_list)
-    
-    def get_strongly_connected_components(self) -> List[Set[Any]]:
-        """
-        Get all strongly connected components using Kosaraju's algorithm.
-        
-        Theory: A strongly connected component is a maximal subgraph where every vertex
-        is reachable from every other vertex. This represents equivalence classes of
-        vertices with respect to the "mutually reachable" relation.
-        
-        Returns:
-            List of sets, where each set contains vertices in a strongly connected component
-        """
-        if not self._adjacency_list:
-            return []
-        
-        # Step 1: Fill order using DFS
-        visited = set()
-        finish_order = []
-        
-        def dfs_fill_order(vertex: Any):
-            visited.add(vertex)
-            for neighbor in self._adjacency_list[vertex]:
-                if neighbor not in visited:
-                    dfs_fill_order(neighbor)
-            finish_order.append(vertex)
-        
-        for vertex in self._adjacency_list:
-            if vertex not in visited:
-                dfs_fill_order(vertex)
-        
-        # Step 2: Create reverse graph
-        reverse_adj = {v: {} for v in self._adjacency_list}
-        for vertex in self._adjacency_list:
-            for neighbor in self._adjacency_list[vertex]:
-                reverse_adj[neighbor][vertex] = self._adjacency_list[vertex][neighbor]
-        
-        # Step 3: DFS on reverse graph in reverse finish order
-        visited = set()
-        components = []
-        
-        def dfs_component(vertex: Any, component: Set[Any]):
-            visited.add(vertex)
-            component.add(vertex)
-            for neighbor in reverse_adj[vertex]:
-                if neighbor not in visited:
-                    dfs_component(neighbor, component)
-        
-        for vertex in reversed(finish_order):
-            if vertex not in visited:
-                component = set()
-                dfs_component(vertex, component)
-                components.append(component)
-        
-        return components
-    
-    # Adjacency matrix methods
-    def get_adjacency_matrix(self) -> List[List[Union[int, float]]]:
-        """
-        Get the weighted adjacency matrix representation of the directed graph.
-        
-        Theory: For weighted directed graph G = (V, E) with V = {v₁, ..., vₙ}, the weighted
-        adjacency matrix A ∈ ℝⁿˣⁿ is defined as:
-        - aᵢⱼ = weight if directed edge from vertex vᵢ to vⱼ exists
-        - aᵢⱼ = 0 if no directed edge from vertex vᵢ to vⱼ exists
-        
-        For directed graphs, the matrix is generally not symmetric.
-        
-        Returns:
-            n×n matrix where matrix[i][j] = edge weight if edge (i,j) exists, 0 otherwise
-        """
-        if not self._adjacency_list:
-            return []
-        
-        # Create ordered list of vertices
-        vertices = sorted(self._adjacency_list.keys())
-        n = len(vertices)
-        vertex_to_index = {v: i for i, v in enumerate(vertices)}
-        
-        # Initialize matrix with zeros
-        matrix = [[0 for _ in range(n)] for _ in range(n)]
-        
-        # Fill matrix with weights
-        for vertex in vertices:
-            i = vertex_to_index[vertex]
-            for neighbor, weight in self._adjacency_list[vertex].items():
-                j = vertex_to_index[neighbor]
-                matrix[i][j] = weight
-        
-        return matrix
     
     @classmethod
-    def from_adjacency_matrix(cls, matrix: List[List[Union[int, float]]], vertices: Optional[List[Any]] = None) -> 'WeightedDirectedGraph':
+    def from_adjacency_matrix(cls, matrix: List[List[Union[int, float]]], 
+                            vertices: Optional[List[Any]] = None) -> 'WeightedDirectedGraph':
         """
         Create a weighted directed graph from an adjacency matrix.
         
-        Theory: Converts a weighted adjacency matrix representation back to a directed graph structure.
-        
         Args:
-            matrix: n×n adjacency matrix where matrix[i][j] contains the edge weight (0 = no edge)
+            matrix: n×n adjacency matrix where matrix[i][j] is the weight from i to j (0 means no edge)
             vertices: Optional list of vertex labels. If None, uses integers 0 to n-1
             
         Returns:
@@ -884,18 +207,18 @@ class WeightedDirectedGraph:
         for vertex in vertices:
             graph.add_vertex(vertex)
         
-        # Add edges from matrix
+        # Add edges with weights from matrix
         for i in range(n):
             for j in range(n):
                 if matrix[i][j] != 0:
                     graph.add_edge(vertices[i], vertices[j], matrix[i][j])
         
         return graph
-
+    
     def __str__(self) -> str:
-        """String representation of the weighted graph."""
+        """String representation of the weighted directed graph."""
         if not self._adjacency_list:
-            return "Empty weighted graph"
+            return "Empty graph"
         
         result = "Weighted Directed Graph:\n"
         for vertex in sorted(self._adjacency_list.keys()):
@@ -904,8 +227,83 @@ class WeightedDirectedGraph:
         return result.rstrip()
     
     def __repr__(self) -> str:
-        """Representation of the weighted graph."""
+        """Representation of the weighted directed graph."""
         return f"WeightedDirectedGraph(vertices={self.vertex_count()}, edges={self.edge_count()}, total_weight={self.total_weight()})"
+
+    def print_graph_analysis(self):
+        """
+        Print a detailed analysis of the weighted directed graph based on graph theory concepts.
+        """
+        info = self.get_graph_info()
+        
+        print("=== Weighted Directed Graph Theory Analysis ===")
+        print(f"Weighted Directed Graph G = (V, E, w) with |V| = {info['vertices']} vertices and |E| = {info['edges']} weighted directed edges")
+        print(f"Total weight w(G) = {info['total_weight']}")
+        print()
+        
+        print("Basic Properties:")
+        print(f"  • Simple graph (schlicht): {'Yes' if info['is_simple'] else 'No'}")
+        print(f"  • Minimum in-degree: {info['min_in_degree']}")
+        print(f"  • Maximum in-degree: {info['max_in_degree']}")
+        print(f"  • Average in-degree: {info['average_in_degree']:.2f}")
+        print(f"  • Minimum out-degree: {info['min_out_degree']}")
+        print(f"  • Maximum out-degree: {info['max_out_degree']}")
+        print(f"  • Average out-degree: {info['average_out_degree']:.2f}")
+        print()
+        
+        print("Weighted Degree Properties:")
+        print(f"  • Minimum weighted in-degree: {info['min_weighted_in_degree']}")
+        print(f"  • Maximum weighted in-degree: {info['max_weighted_in_degree']}")
+        print(f"  • Average weighted in-degree: {info['average_weighted_in_degree']:.2f}")
+        print(f"  • Minimum weighted out-degree: {info['min_weighted_out_degree']}")
+        print(f"  • Maximum weighted out-degree: {info['max_weighted_out_degree']}")
+        print(f"  • Average weighted out-degree: {info['average_weighted_out_degree']:.2f}")
+        print()
+        
+        print("Degree Sequences:")
+        print(f"  • In-degree sequence: {info['degree_sequences']['in_degrees']}")
+        print(f"  • Out-degree sequence: {info['degree_sequences']['out_degrees']}")
+        print(f"  • Total degree sequence: {info['degree_sequences']['total_degrees']}")
+        print()
+        
+        print("Weighted Degree Sequences:")
+        print(f"  • Weighted in-degree sequence: {info['weighted_degree_sequences']['weighted_in_degrees']}")
+        print(f"  • Weighted out-degree sequence: {info['weighted_degree_sequences']['weighted_out_degrees']}")
+        print(f"  • Weighted total degree sequence: {info['weighted_degree_sequences']['weighted_total_degrees']}")
+        print()
+        
+        print("Weight Statistics:")
+        stats = info['weight_statistics']
+        if stats:
+            print(f"  • Minimum edge weight: {stats.get('min_weight', 'N/A')}")
+            print(f"  • Maximum edge weight: {stats.get('max_weight', 'N/A')}")
+            print(f"  • Average edge weight: {stats.get('average_weight', 0):.2f}")
+        print()
+        
+        print("Individual Vertex Analysis:")
+        for vertex in sorted(info['vertex_degrees'].keys()):
+            degrees = info['vertex_degrees'][vertex]
+            successors = sorted(self.get_neighbors(vertex))
+            predecessors = sorted(self.get_predecessors(vertex))
+            weighted_successors = sorted(self.get_weighted_neighbors(vertex))
+            weighted_predecessors = sorted(self.get_weighted_predecessors(vertex))
+            print(f"  Vertex {vertex}:")
+            print(f"    • deg⁺({vertex}) = {degrees['out_degree']} (out-degree), successors: {successors}")
+            print(f"    • deg⁻({vertex}) = {degrees['in_degree']} (in-degree), predecessors: {predecessors}")
+            print(f"    • deg({vertex}) = {degrees['total_degree']} (total degree)")
+            print(f"    • w⁺({vertex}) = {degrees['weighted_out_degree']} (weighted out-degree), edges: {weighted_successors}")
+            print(f"    • w⁻({vertex}) = {degrees['weighted_in_degree']} (weighted in-degree), edges: {weighted_predecessors}")
+            print(f"    • w({vertex}) = {degrees['weighted_total_degree']} (weighted total degree)")
+        print()
+        
+        print("Graph Theory Concepts:")
+        print("  • Out-degree: deg⁺(v) = number of edges leaving vertex v")
+        print("  • In-degree: deg⁻(v) = number of edges entering vertex v")
+        print("  • Total degree: deg(v) = deg⁺(v) + deg⁻(v)")
+        print("  • Weighted out-degree: w⁺(v) = sum of weights of edges leaving v")
+        print("  • Weighted in-degree: w⁻(v) = sum of weights of edges entering v")
+        print("  • Weighted total degree: w(v) = w⁺(v) + w⁻(v)")
+        print("  • Total weight: w(G) = sum of all edge weights")
 
 
 def main():
