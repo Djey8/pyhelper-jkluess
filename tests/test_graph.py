@@ -572,3 +572,657 @@ class TestMixedModes:
         assert g3.get_edge_weight('A', 'B') == 10
         assert g4.get_edge_weight('A', 'B') == 20
         assert g4.get_edge_weight('B', 'A') is None  # Directed
+
+
+class TestGetAdjacencyList:
+    def test_get_adjacency_list_unweighted_undirected(self):
+        """Test getting adjacency list from unweighted undirected graph"""
+        g = Graph(directed=False, weighted=False)
+        g.add_edge('A', 'B')
+        g.add_edge('B', 'C')
+        
+        adj_list = g.get_adjacency_list()
+        assert 'A' in adj_list
+        assert 'B' in adj_list['A']
+        assert 'A' in adj_list['B']  # Symmetric
+        assert 'C' in adj_list['B']
+    
+    def test_get_adjacency_list_weighted_undirected(self):
+        """Test getting adjacency list from weighted undirected graph"""
+        g = Graph(directed=False, weighted=True)
+        g.add_edge('A', 'B', 10)
+        g.add_edge('B', 'C', 5)
+        
+        adj_list = g.get_adjacency_list()
+        # For weighted graphs, adjacency list is Dict[vertex, List[(neighbor, weight)]]
+        assert isinstance(adj_list['A'], list)
+        assert ('B', 10) in adj_list['A']
+        assert ('A', 10) in adj_list['B']  # Symmetric
+        assert ('C', 5) in adj_list['B']
+        assert ('B', 5) in adj_list['C']
+    
+    def test_get_adjacency_list_directed(self):
+        """Test getting adjacency list from directed graph"""
+        g = Graph(directed=True, weighted=False)
+        g.add_edge('A', 'B')
+        g.add_edge('B', 'C')
+        
+        adj_list = g.get_adjacency_list()
+        assert 'B' in adj_list['A']
+        assert 'A' not in adj_list['B']  # Not symmetric
+        assert 'C' in adj_list['B']
+    
+    def test_create_graph_from_adjacency_list(self):
+        """Test creating a new graph from adjacency list"""
+        g1 = Graph(directed=False, weighted=True)
+        g1.add_edge('A', 'B', 10)
+        g1.add_edge('B', 'C', 5)
+        g1.add_edge('A', 'C', 8)
+        
+        adj_list = g1.get_adjacency_list()
+        g2 = Graph(directed=False, weighted=True, data=adj_list)
+        
+        assert g2.vertex_count() == g1.vertex_count()
+        assert g2.edge_count() == g1.edge_count()
+        assert g2.get_edge_weight('A', 'B') == 10
+        assert g2.get_edge_weight('B', 'C') == 5
+        assert g2.get_edge_weight('A', 'C') == 8
+    
+    def test_adjacency_list_is_deep_copy(self):
+        """Test that adjacency list is a deep copy"""
+        g = Graph(directed=False, weighted=True)
+        g.add_edge('A', 'B', 10)
+        
+        adj_list = g.get_adjacency_list()
+        # Modify the copy
+        adj_list['A'].append(('C', 999))
+        
+        assert g.get_edge_weight('A', 'B') == 10  # Original unchanged
+        assert not g.has_edge('A', 'C')  # New edge not in original
+    
+    def test_get_adjacency_list_empty_graph(self):
+        """Test getting adjacency list from empty graph"""
+        g = Graph(directed=False, weighted=False)
+        adj_list = g.get_adjacency_list()
+        assert adj_list == {}
+
+
+class TestFindShortestPath:
+    def test_shortest_path_unweighted_undirected(self):
+        """Test shortest path in unweighted undirected graph"""
+        g = Graph(directed=False, weighted=False)
+        g.add_edge('A', 'B')
+        g.add_edge('B', 'C')
+        g.add_edge('A', 'D')
+        g.add_edge('D', 'C')
+        
+        path, distance = g.find_shortest_path('A', 'C')
+        assert len(path) == 3  # Either A-B-C or A-D-C
+        assert distance == 2
+        assert path[0] == 'A'
+        assert path[-1] == 'C'
+    
+    def test_shortest_path_weighted_undirected(self):
+        """Test shortest path in weighted undirected graph using Dijkstra"""
+        g = Graph(directed=False, weighted=True)
+        g.add_edge('A', 'B', 4)
+        g.add_edge('A', 'C', 2)
+        g.add_edge('C', 'B', 1)
+        g.add_edge('B', 'D', 5)
+        g.add_edge('C', 'D', 8)
+        
+        path, distance = g.find_shortest_path('A', 'D')
+        assert path == ['A', 'C', 'B', 'D']
+        assert distance == 8  # 2 + 1 + 5
+    
+    def test_shortest_path_weighted_directed(self):
+        """Test shortest path in weighted directed graph"""
+        g = Graph(directed=True, weighted=True)
+        g.add_edge('A', 'B', 1)
+        g.add_edge('A', 'C', 4)
+        g.add_edge('B', 'C', 2)
+        g.add_edge('C', 'D', 1)
+        g.add_edge('B', 'D', 5)
+        
+        path, distance = g.find_shortest_path('A', 'D')
+        assert path == ['A', 'B', 'C', 'D']
+        assert distance == 4  # 1 + 2 + 1
+    
+    def test_shortest_path_same_vertex(self):
+        """Test shortest path when start equals end"""
+        g = Graph(directed=False, weighted=False)
+        g.add_vertex('A')
+        
+        path, distance = g.find_shortest_path('A', 'A')
+        assert path == ['A']
+        assert distance == 0
+    
+    def test_shortest_path_no_path_exists(self):
+        """Test shortest path when no path exists"""
+        g = Graph(directed=True, weighted=False)
+        g.add_edge('A', 'B')
+        g.add_edge('C', 'D')
+        
+        result = g.find_shortest_path('A', 'D')
+        assert result is None
+    
+    def test_shortest_path_nonexistent_vertex(self):
+        """Test shortest path with nonexistent vertex"""
+        g = Graph(directed=False, weighted=False)
+        g.add_edge('A', 'B')
+        
+        result = g.find_shortest_path('A', 'Z')
+        assert result is None
+        
+        result = g.find_shortest_path('Z', 'A')
+        assert result is None
+    
+    def test_shortest_path_unweighted_directed(self):
+        """Test shortest path in unweighted directed graph"""
+        g = Graph(directed=True, weighted=False)
+        g.add_edge('A', 'B')
+        g.add_edge('A', 'C')
+        g.add_edge('B', 'D')
+        g.add_edge('C', 'D')
+        g.add_edge('C', 'E')
+        g.add_edge('D', 'E')
+        
+        path, distance = g.find_shortest_path('A', 'E')
+        # Shortest path is A->C->E (2 edges)
+        assert distance == 2
+        assert path == ['A', 'C', 'E']
+        assert path[0] == 'A'
+        assert path[-1] == 'E'
+    
+    def test_shortest_path_weighted_multiple_paths(self):
+        """Test shortest path when multiple paths exist with different weights"""
+        g = Graph(directed=False, weighted=True)
+        g.add_edge('A', 'B', 1)
+        g.add_edge('B', 'C', 1)
+        g.add_edge('A', 'C', 10)  # Direct but expensive
+        
+        path, distance = g.find_shortest_path('A', 'C')
+        assert path == ['A', 'B', 'C']
+        assert distance == 2  # 1 + 1
+    
+    def test_shortest_path_weighted_negative_weights(self):
+        """Test shortest path handles graphs with negative weights (Dijkstra limitation)"""
+        # Note: Dijkstra doesn't work correctly with negative weights
+        # This test documents the behavior
+        g = Graph(directed=True, weighted=True)
+        g.add_edge('A', 'B', 5)
+        g.add_edge('A', 'C', 2)
+        g.add_edge('C', 'B', -10)  # Negative weight
+        
+        # Dijkstra will find a path, but may not be optimal with negative weights
+        path, distance = g.find_shortest_path('A', 'B')
+        assert path is not None
+        assert path[0] == 'A'
+        assert path[-1] == 'B'
+    
+    def test_shortest_path_complex_graph(self):
+        """Test shortest path in a complex weighted graph"""
+        g = Graph(directed=False, weighted=True)
+        edges = [
+            ('A', 'B', 7), ('A', 'C', 9), ('A', 'F', 14),
+            ('B', 'C', 10), ('B', 'D', 15), ('C', 'D', 11),
+            ('C', 'F', 2), ('D', 'E', 6), ('E', 'F', 9)
+        ]
+        for u, v, w in edges:
+            g.add_edge(u, v, w)
+        
+        path, distance = g.find_shortest_path('A', 'E')
+        assert path == ['A', 'C', 'F', 'E'] or path == ['A', 'C', 'D', 'E']
+        assert distance == 20  # A->C(9) + C->F(2) + F->E(9) or A->C(9) + C->D(11) + D->E(6)...
+        # Actually: A->C(9) + C->D(11) + D->E(6) = 26 vs A->C(9) + C->F(2) + F->E(9) = 20
+        assert distance == 20
+
+
+class TestDFS:
+    """Test cases for depth-first search (DFS) traversal"""
+    
+    def test_dfs_undirected_simple(self):
+        """Test DFS traversal on simple undirected graph"""
+        g = Graph(directed=False, weighted=False)
+        g.add_edge('A', 'B')
+        g.add_edge('B', 'C')
+        g.add_edge('A', 'D')
+        
+        result = g.dfs('A')
+        assert 'A' == result[0]  # Start vertex is first
+        assert len(result) == 4
+        assert set(result) == {'A', 'B', 'C', 'D'}
+    
+    def test_dfs_directed_simple(self):
+        """Test DFS traversal on simple directed graph"""
+        g = Graph(directed=True, weighted=False)
+        g.add_edge('A', 'B')
+        g.add_edge('B', 'C')
+        g.add_edge('A', 'D')
+        
+        result = g.dfs('A')
+        assert result[0] == 'A'
+        assert len(result) == 4
+        assert set(result) == {'A', 'B', 'C', 'D'}
+    
+    def test_dfs_with_end_vertex(self):
+        """Test DFS stops when end vertex is reached"""
+        g = Graph(directed=False, weighted=False)
+        g.add_edge('A', 'B')
+        g.add_edge('B', 'C')
+        g.add_edge('C', 'D')
+        g.add_edge('D', 'E')
+        
+        result = g.dfs('A', end='C')
+        assert 'A' in result
+        assert 'C' in result
+        assert len(result) <= 4  # Should stop early
+    
+    def test_dfs_disconnected_components(self):
+        """Test DFS only visits connected component"""
+        g = Graph(directed=False, weighted=False)
+        g.add_edge('A', 'B')
+        g.add_edge('C', 'D')  # Separate component
+        
+        result = g.dfs('A')
+        assert set(result) == {'A', 'B'}
+        assert 'C' not in result
+        assert 'D' not in result
+    
+    def test_dfs_single_vertex(self):
+        """Test DFS with single isolated vertex"""
+        g = Graph(directed=False, weighted=False)
+        g.add_vertex('A')
+        
+        result = g.dfs('A')
+        assert result == ['A']
+    
+    def test_dfs_nonexistent_vertex(self):
+        """Test DFS with non-existent start vertex"""
+        g = Graph(directed=False, weighted=False)
+        g.add_edge('A', 'B')
+        
+        result = g.dfs('Z')
+        assert result == []
+    
+    def test_dfs_cyclic_graph(self):
+        """Test DFS handles cycles correctly"""
+        g = Graph(directed=False, weighted=False)
+        g.add_edge('A', 'B')
+        g.add_edge('B', 'C')
+        g.add_edge('C', 'A')  # Creates cycle
+        
+        result = g.dfs('A')
+        assert len(result) == 3
+        assert set(result) == {'A', 'B', 'C'}
+
+
+class TestBFS:
+    """Test cases for breadth-first search (BFS) traversal"""
+    
+    def test_bfs_undirected_simple(self):
+        """Test BFS traversal on simple undirected graph"""
+        g = Graph(directed=False, weighted=False)
+        g.add_edge('A', 'B')
+        g.add_edge('A', 'C')
+        g.add_edge('B', 'D')
+        
+        result = g.bfs('A')
+        assert result[0] == 'A'
+        assert len(result) == 4
+        assert set(result) == {'A', 'B', 'C', 'D'}
+        # BFS should visit level-by-level: A first, then B,C, then D
+        assert result.index('B') < result.index('D')
+        assert result.index('C') < result.index('D')
+    
+    def test_bfs_directed_simple(self):
+        """Test BFS traversal on simple directed graph"""
+        g = Graph(directed=True, weighted=False)
+        g.add_edge('A', 'B')
+        g.add_edge('A', 'C')
+        g.add_edge('B', 'D')
+        
+        result = g.bfs('A')
+        assert result[0] == 'A'
+        assert len(result) == 4
+    
+    def test_bfs_with_end_vertex(self):
+        """Test BFS stops when end vertex is reached"""
+        g = Graph(directed=False, weighted=False)
+        g.add_edge('A', 'B')
+        g.add_edge('A', 'C')
+        g.add_edge('B', 'D')
+        g.add_edge('C', 'E')
+        
+        result = g.bfs('A', end='D')
+        assert 'A' in result
+        assert 'D' in result
+        assert len(result) <= 4  # Should stop when D is found
+    
+    def test_bfs_disconnected_components(self):
+        """Test BFS only visits connected component"""
+        g = Graph(directed=False, weighted=False)
+        g.add_edge('A', 'B')
+        g.add_edge('C', 'D')  # Separate component
+        
+        result = g.bfs('A')
+        assert set(result) == {'A', 'B'}
+        assert 'C' not in result
+    
+    def test_bfs_single_vertex(self):
+        """Test BFS with single isolated vertex"""
+        g = Graph(directed=False, weighted=False)
+        g.add_vertex('A')
+        
+        result = g.bfs('A')
+        assert result == ['A']
+    
+    def test_bfs_nonexistent_vertex(self):
+        """Test BFS with non-existent start vertex"""
+        g = Graph(directed=False, weighted=False)
+        g.add_edge('A', 'B')
+        
+        result = g.bfs('Z')
+        assert result == []
+    
+    def test_bfs_level_order(self):
+        """Test BFS traverses in correct level order"""
+        g = Graph(directed=True, weighted=False)
+        # Create tree structure: A -> B,C; B -> D,E; C -> F,G
+        g.add_edge('A', 'B')
+        g.add_edge('A', 'C')
+        g.add_edge('B', 'D')
+        g.add_edge('B', 'E')
+        g.add_edge('C', 'F')
+        g.add_edge('C', 'G')
+        
+        result = g.bfs('A')
+        assert result[0] == 'A'  # Level 0
+        # Level 1: B, C should come before level 2
+        assert result.index('B') < result.index('D')
+        assert result.index('C') < result.index('F')
+
+
+class TestDijkstra:
+    """Test cases for Dijkstra's shortest path algorithm"""
+    
+    def test_dijkstra_simple_weighted_graph(self):
+        """Test Dijkstra on simple weighted graph"""
+        g = Graph(directed=False, weighted=True)
+        g.add_edge('A', 'B', 4)
+        g.add_edge('A', 'C', 2)
+        g.add_edge('C', 'B', 1)
+        
+        result = g.dijkstra('A')
+        assert result['A'] == (0, ['A'])
+        assert result['C'] == (2, ['A', 'C'])
+        assert result['B'] == (3, ['A', 'C', 'B'])
+    
+    def test_dijkstra_directed_graph(self):
+        """Test Dijkstra on directed weighted graph"""
+        g = Graph(directed=True, weighted=True)
+        g.add_edge('A', 'B', 5)
+        g.add_edge('A', 'C', 2)
+        g.add_edge('C', 'B', 1)
+        # No edge from B to other vertices
+        
+        result = g.dijkstra('A')
+        assert result['A'] == (0, ['A'])
+        assert result['C'] == (2, ['A', 'C'])
+        assert result['B'] == (3, ['A', 'C', 'B'])
+    
+    def test_dijkstra_unreachable_vertex(self):
+        """Test Dijkstra with unreachable vertices"""
+        g = Graph(directed=True, weighted=True)
+        g.add_edge('A', 'B', 1)
+        g.add_vertex('C')  # Isolated vertex
+        
+        result = g.dijkstra('A')
+        assert result['A'] == (0, ['A'])
+        assert result['B'] == (1, ['A', 'B'])
+        assert result['C'] == (float('inf'), [])
+    
+    def test_dijkstra_complex_graph(self):
+        """Test Dijkstra on complex weighted graph"""
+        g = Graph(directed=False, weighted=True)
+        edges = [
+            ('A', 'B', 7), ('A', 'C', 9), ('A', 'F', 14),
+            ('B', 'C', 10), ('B', 'D', 15), ('C', 'D', 11),
+            ('C', 'F', 2), ('D', 'E', 6), ('E', 'F', 9)
+        ]
+        for u, v, w in edges:
+            g.add_edge(u, v, w)
+        
+        result = g.dijkstra('A')
+        assert result['A'] == (0, ['A'])
+        assert result['C'] == (9, ['A', 'C'])
+        assert result['F'] == (11, ['A', 'C', 'F'])
+        assert result['E'] == (20, ['A', 'C', 'F', 'E'])
+    
+    def test_dijkstra_unweighted_graph_returns_empty(self):
+        """Test Dijkstra returns empty dict for unweighted graphs"""
+        g = Graph(directed=False, weighted=False)
+        g.add_edge('A', 'B')
+        
+        result = g.dijkstra('A')
+        assert result == {}
+    
+    def test_dijkstra_nonexistent_start(self):
+        """Test Dijkstra with non-existent start vertex"""
+        g = Graph(directed=False, weighted=True)
+        g.add_edge('A', 'B', 1)
+        
+        result = g.dijkstra('Z')
+        assert result == {}
+    
+    def test_dijkstra_single_vertex(self):
+        """Test Dijkstra with single vertex"""
+        g = Graph(directed=False, weighted=True)
+        g.add_vertex('A')
+        
+        result = g.dijkstra('A')
+        assert result == {'A': (0, ['A'])}
+    
+    def test_dijkstra_all_vertices_reachable(self):
+        """Test Dijkstra reaches all connected vertices"""
+        g = Graph(directed=False, weighted=True)
+        g.add_edge('A', 'B', 1)
+        g.add_edge('B', 'C', 2)
+        g.add_edge('C', 'D', 3)
+        
+        result = g.dijkstra('A')
+        assert all(dist != float('inf') for dist, _ in result.values())
+        assert len(result) == 4
+
+
+class TestMinimumSpanningTree:
+    """Test cases for MST algorithms (Kruskal and Prim)"""
+    
+    def test_mst_kruskal_simple_graph(self):
+        """Test Kruskal's MST on simple weighted undirected graph"""
+        g = Graph(directed=False, weighted=True)
+        g.add_edge('A', 'B', 4)
+        g.add_edge('A', 'C', 2)
+        g.add_edge('B', 'C', 1)
+        g.add_edge('B', 'D', 5)
+        
+        mst = g.minimum_spanning_tree_kruskal()
+        assert mst is not None
+        assert mst.vertex_count() == 4
+        assert mst.edge_count() == 3  # MST has V-1 edges
+        assert mst.total_weight() == 8  # 1 + 2 + 5
+    
+    def test_mst_prim_simple_graph(self):
+        """Test Prim's MST on simple weighted undirected graph"""
+        g = Graph(directed=False, weighted=True)
+        g.add_edge('A', 'B', 4)
+        g.add_edge('A', 'C', 2)
+        g.add_edge('B', 'C', 1)
+        g.add_edge('B', 'D', 5)
+        
+        mst = g.minimum_spanning_tree_prim()
+        assert mst is not None
+        assert mst.vertex_count() == 4
+        assert mst.edge_count() == 3
+        assert mst.total_weight() == 8  # Same as Kruskal
+    
+    def test_mst_both_algorithms_same_weight(self):
+        """Test both MST algorithms produce same total weight"""
+        g = Graph(directed=False, weighted=True)
+        edges = [
+            ('A', 'B', 7), ('A', 'C', 9), ('A', 'F', 14),
+            ('B', 'C', 10), ('B', 'D', 15), ('C', 'D', 11),
+            ('C', 'F', 2), ('D', 'E', 6), ('E', 'F', 9)
+        ]
+        for u, v, w in edges:
+            g.add_edge(u, v, w)
+        
+        mst_kruskal = g.minimum_spanning_tree_kruskal()
+        mst_prim = g.minimum_spanning_tree_prim()
+        
+        assert mst_kruskal.total_weight() == mst_prim.total_weight()
+        assert mst_kruskal.edge_count() == 5  # 6 vertices - 1
+        assert mst_prim.edge_count() == 5
+    
+    def test_mst_directed_graph_returns_none(self):
+        """Test MST returns None for directed graphs"""
+        g = Graph(directed=True, weighted=True)
+        g.add_edge('A', 'B', 1)
+        
+        assert g.minimum_spanning_tree_kruskal() is None
+        assert g.minimum_spanning_tree_prim() is None
+    
+    def test_mst_unweighted_graph_returns_none(self):
+        """Test MST returns None for unweighted graphs"""
+        g = Graph(directed=False, weighted=False)
+        g.add_edge('A', 'B')
+        
+        assert g.minimum_spanning_tree_kruskal() is None
+        assert g.minimum_spanning_tree_prim() is None
+    
+    def test_mst_single_vertex(self):
+        """Test MST with single vertex"""
+        g = Graph(directed=False, weighted=True)
+        g.add_vertex('A')
+        
+        mst = g.minimum_spanning_tree_kruskal()
+        assert mst.vertex_count() == 1
+        assert mst.edge_count() == 0
+    
+    def test_mst_empty_graph(self):
+        """Test MST with empty graph"""
+        g = Graph(directed=False, weighted=True)
+        
+        mst_k = g.minimum_spanning_tree_kruskal()
+        mst_p = g.minimum_spanning_tree_prim()
+        
+        assert mst_k is not None
+        assert mst_p is not None
+        assert mst_k.vertex_count() == 0
+        assert mst_p.vertex_count() == 0
+    
+    def test_mst_disconnected_graph(self):
+        """Test MST with disconnected graph creates forest (Kruskal) or single component tree (Prim)"""
+        g = Graph(directed=False, weighted=True)
+        g.add_edge('A', 'B', 1)
+        g.add_edge('C', 'D', 2)  # Separate component
+        
+        mst_k = g.minimum_spanning_tree_kruskal()
+        mst_p = g.minimum_spanning_tree_prim()
+        
+        # Kruskal creates a spanning forest (all components)
+        assert mst_k.edge_count() == 2
+        assert mst_k.total_weight() == 3
+        
+        # Prim only creates MST for the component containing the start vertex
+        # It will only span one connected component
+        assert mst_p.edge_count() == 1
+        assert mst_p.total_weight() in [1, 2]  # Either component A-B or C-D
+
+
+class TestFindAllCycles:
+    """Test cases for finding all cycles in graphs"""
+    
+    def test_find_cycles_undirected_simple(self):
+        """Test finding cycles in simple undirected graph"""
+        g = Graph(directed=False, weighted=False)
+        g.add_edge('A', 'B')
+        g.add_edge('B', 'C')
+        g.add_edge('C', 'A')  # Creates triangle
+        
+        cycles = g.find_all_cycles()
+        assert len(cycles) > 0
+        # Check that we found the triangle cycle
+        found_triangle = False
+        for cycle in cycles:
+            if set(cycle[:-1]) == {'A', 'B', 'C'}:  # Ignore closing vertex
+                found_triangle = True
+        assert found_triangle
+    
+    def test_find_cycles_directed_simple(self):
+        """Test finding cycles in simple directed graph"""
+        g = Graph(directed=True, weighted=False)
+        g.add_edge('A', 'B')
+        g.add_edge('B', 'C')
+        g.add_edge('C', 'A')  # Creates directed cycle
+        
+        cycles = g.find_all_cycles()
+        assert len(cycles) > 0
+    
+    def test_find_cycles_no_cycles(self):
+        """Test finding cycles in acyclic graph"""
+        g = Graph(directed=True, weighted=False)
+        g.add_edge('A', 'B')
+        g.add_edge('B', 'C')
+        g.add_edge('C', 'D')  # DAG - no cycles
+        
+        cycles = g.find_all_cycles()
+        assert len(cycles) == 0
+    
+    def test_find_cycles_tree_no_cycles(self):
+        """Test finding cycles in tree (undirected acyclic)"""
+        g = Graph(directed=False, weighted=False)
+        g.add_edge('A', 'B')
+        g.add_edge('A', 'C')
+        g.add_edge('B', 'D')  # Tree structure
+        
+        cycles = g.find_all_cycles()
+        assert len(cycles) == 0
+    
+    def test_find_cycles_multiple_cycles(self):
+        """Test finding multiple cycles in graph"""
+        g = Graph(directed=False, weighted=False)
+        # Create two triangles sharing one edge
+        g.add_edge('A', 'B')
+        g.add_edge('B', 'C')
+        g.add_edge('C', 'A')  # Triangle 1
+        g.add_edge('C', 'D')
+        g.add_edge('D', 'A')  # Triangle 2 with A-C shared
+        
+        cycles = g.find_all_cycles()
+        assert len(cycles) >= 2  # At least 2 triangles
+    
+    def test_find_cycles_empty_graph(self):
+        """Test finding cycles in empty graph"""
+        g = Graph(directed=False, weighted=False)
+        
+        cycles = g.find_all_cycles()
+        assert cycles == []
+    
+    def test_find_cycles_single_vertex(self):
+        """Test finding cycles with single vertex"""
+        g = Graph(directed=False, weighted=False)
+        g.add_vertex('A')
+        
+        cycles = g.find_all_cycles()
+        assert cycles == []
+    
+    def test_find_cycles_self_loop(self):
+        """Test finding self-loop as cycle"""
+        g = Graph(directed=True, weighted=False)
+        g.add_vertex('A')
+        g.add_edge('A', 'A')  # Self-loop
+        
+        cycles = g.find_all_cycles()
+        # Self-loop should be detected as a cycle
+        assert len(cycles) > 0

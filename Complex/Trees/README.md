@@ -1,0 +1,260 @@
+# Trees
+
+Tree data structure implementation with comprehensive operations and visualization support.
+
+**Required:** `pip install networkx matplotlib`
+
+## Overview
+
+A **Tree** is a connected, acyclic undirected graph with one distinguished node called the **root**.
+
+### Properties of a Tree
+
+- **m = n - 1**: For m edges and n nodes, a tree always has exactly one fewer edge than nodes
+- **Connected**: There is exactly one path between any two nodes
+- **Acyclic**: No cycles exist in a tree
+- **Unique Path**: Each pair of nodes is connected by exactly one simple path
+- **Hierarchical**: Nodes are organized in parent-child relationships
+
+### Key Terminology
+
+- **Root**: The distinguished starting node (has no parent)
+- **Parent (Predecessor)**: Direct ancestor of a node
+- **Child (Successor)**: Direct descendant of a node
+- **Leaf**: Node without children (terminal node)
+- **Inner Node**: Node with at least one child (non-terminal node)
+- **Degree**: Number of children of a node
+- **Depth**: Length of the path from root to a node (root has depth 0)
+- **Level**: All nodes at the same depth
+- **Height**: Maximum depth of any node in the tree
+
+## Quick Start
+
+```python
+from Complex.Trees.tree import Tree
+
+# Create tree with root
+tree = Tree("Root")
+
+# Add children
+child_a = tree.add_child(tree.root, "A")
+child_b = tree.add_child(tree.root, "B")
+child_c = tree.add_child(tree.root, "C")
+
+# Add grandchildren
+tree.add_child(child_a, "A1")
+tree.add_child(child_a, "A2")
+tree.add_child(child_b, "B1")
+
+# Print tree structure
+tree.print_tree()
+
+# Output:
+# └── Root
+#     ├── A
+#     │   ├── A1
+#     │   └── A2
+#     ├── B
+#     │   └── B1
+#     └── C
+```
+
+## Key Operations
+
+```python
+# Creation and modification
+tree = Tree()                         # Empty tree
+tree = Tree("Root")                   # Tree with root
+root = tree.set_root("Root")          # Set/change root
+child = tree.add_child(parent, "A")   # Add child
+tree.is_empty()                       # Check if empty
+
+# Node counting and properties
+tree.get_node_count()                 # Total nodes (n)
+tree.get_edge_count()                 # Total edges (m)
+tree.verify_tree_property()           # Check m = n - 1
+tree.get_depth(node)                  # Depth of node
+tree.get_height()                     # Height of tree
+
+# Navigation and levels
+tree.get_level(0)                     # Nodes at level 0 (root)
+tree.get_level(1)                     # All children of root
+tree.get_all_levels()                 # Dict: {depth: [nodes]}
+
+# Node classification
+tree.get_leaves()                     # All leaf nodes
+tree.get_inner_nodes()                # All inner nodes
+
+# Tree traversals
+tree.traverse_preorder()              # Root → Children (DFS)
+tree.traverse_inorder()               # First child → Root → Others
+tree.traverse_postorder()             # Children → Root (DFS)
+tree.traverse_levelorder()            # Level-by-level (BFS)
+
+# Search and paths
+tree.find_node("A")                   # Find node by data
+tree.get_ancestors(node)              # Get all ancestors
+tree.get_descendants(node)            # Get all descendants
+tree.find_path(node1, node2)          # Unique path between nodes
+
+# Graph theory properties
+tree.is_connected()                   # Always True for valid tree
+tree.has_cycle()                      # Always False for valid tree
+tree.is_acyclic()                     # Always True for valid tree
+
+# Statistics and analysis
+tree.get_statistics()                 # Dict with all metrics
+# Returns: node_count, edge_count, height, leaf_count, 
+#          inner_node_count, satisfies_tree_property, 
+#          is_connected, is_acyclic
+
+# Visualization
+tree.print_tree()                     # ASCII tree structure
+tree.visualize(title="My Tree", root_position="top")
+# root_position: "top", "bottom", "left", "right"
+```
+
+## TreeNode Class
+
+Individual tree nodes can be manipulated directly:
+
+```python
+from Complex.Trees.tree import TreeNode
+
+# Node creation and manipulation
+node = TreeNode("MyData")
+child = TreeNode("ChildData")
+node.add_child(child)
+node.remove_child(child)
+
+# Node properties
+node.is_leaf()                    # Has no children?
+node.is_inner_node()              # Has children?
+node.degree()                     # Number of children
+
+# Node attributes
+node.data                         # Stored data
+node.parent                       # Parent node
+node.children                     # List of children
+```
+
+## Example Usage
+
+### File System Tree
+
+```python
+from Complex.Trees.tree import Tree
+
+fs = Tree("/")
+home = fs.add_child(fs.root, "home")
+user = fs.add_child(home, "user")
+fs.add_child(user, "file.txt")
+
+fs.print_tree()
+# └── /
+#     └── home
+#         └── user
+#             └── file.txt
+
+stats = fs.get_statistics()
+print(f"Files: {stats['leaf_count']}, Depth: {stats['height']}")
+```
+
+### Organization Chart
+
+```python
+from Complex.Trees.tree import Tree
+
+org = Tree("CEO")
+cto = org.add_child(org.root, "CTO")
+cfo = org.add_child(org.root, "CFO")
+
+eng = org.add_child(cto, "Eng Lead")
+org.add_child(eng, "Dev 1")
+org.add_child(eng, "Dev 2")
+org.add_child(cfo, "Accountant")
+
+# Analysis
+print(f"Total: {org.get_node_count()}")
+print(f"Levels: {org.get_height()}")
+print(f"C-Level: {[n.data for n in org.get_level(1)]}")
+print(f"ICs: {[n.data for n in org.get_leaves()]}")
+```
+
+## All Available Operations
+
+### **Tree Class Operations (32 total)**
+
+**Creation & Basic (4):**
+- `Tree(root_data=None)` - Create tree
+- `is_empty()` - Check if empty
+- `set_root(data)` - Set/change root
+- `add_child(parent, child_data)` - Add child
+
+**Node Counting & Properties (3):**
+- `get_node_count()` - Total nodes (n)
+- `get_edge_count()` - Total edges (m)
+- `verify_tree_property()` - Check m = n - 1
+
+**Depth & Height (2):**
+- `get_depth(node)` - Node depth
+- `get_height()` - Tree height
+
+**Level Operations (2):**
+- `get_level(depth)` - Nodes at level
+- `get_all_levels()` - All levels dict
+
+**Classification (2):**
+- `get_leaves()` - All leaves
+- `get_inner_nodes()` - All inner nodes
+
+**Traversals (4):**
+- `traverse_preorder()` - Root → Children
+- `traverse_inorder()` - First child → Root → Others
+- `traverse_postorder()` - Children → Root
+- `traverse_levelorder()` - Level-by-level
+
+**Search & Paths (4):**
+- `find_node(data)` - Find by data
+- `get_ancestors(node)` - Parent to root
+- `get_descendants(node)` - All descendants
+- `find_path(from, to)` - Unique path
+
+**Graph Theory (3):**
+- `is_connected()` - Check connected
+- `has_cycle()` - Check for cycles
+- `is_acyclic()` - Check acyclic
+
+**Statistics & Visualization (4):**
+- `get_statistics()` - All metrics dict
+- `print_tree()` - ASCII structure
+- `visualize()` - Matplotlib graph
+- `__str__() / __repr__()` - String representation
+
+### **TreeNode Class Operations (8 total)**
+
+**Creation & Manipulation (3):**
+- `TreeNode(data)` - Create node
+- `add_child(child)` - Add child
+- `remove_child(child)` - Remove child
+
+**Properties (3):**
+- `is_leaf()` - Check if leaf
+- `is_inner_node()` - Check if inner
+- `degree()` - Number of children
+
+**Attributes & String (2):**
+- `data, parent, children` - Direct access
+- `__str__() / __repr__()` - String representation
+
+## Performance
+
+| Operation | Time | Space |
+|-----------|------|-------|
+| Add/Remove child | O(1) / O(k) | O(1) |
+| Find node | O(n) | O(h) |
+| Depth/Height | O(h) / O(n) | O(h) |
+| Traversals | O(n) | O(n) |
+| Path finding | O(n) | O(h) |
+
+*k = children count, h = height, n = nodes*

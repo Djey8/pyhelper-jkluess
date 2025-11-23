@@ -487,6 +487,383 @@ class Graph:
         
         return total
     
+    def dfs(self, start: Any, end: Optional[Any] = None, visited: Optional[Set[Any]] = None) -> List[Any]:
+        """
+        Perform Depth-First Search (DFS) starting from a given vertex.
+        
+        Args:
+            start: Starting vertex for the search
+            end: Optional ending vertex. If provided, stops when reached.
+            visited: Optional set of already visited vertices (for internal use)
+            
+        Returns:
+            List of vertices in the order they were visited during DFS
+            
+        Example:
+            >>> g = Graph()
+            >>> g.add_edge('A', 'B')
+            >>> g.add_edge('B', 'C')
+            >>> g.add_edge('A', 'D')
+            >>> traversal = g.dfs('A')
+            >>> print(traversal)  # e.g., ['A', 'B', 'C', 'D']
+        """
+        if start not in self._adjacency_list:
+            return []
+        
+        if visited is None:
+            visited = set()
+        
+        result = []
+        
+        def dfs_recursive(vertex: Any):
+            if vertex in visited:
+                return
+            
+            visited.add(vertex)
+            result.append(vertex)
+            
+            if end and vertex == end:
+                return
+            
+            neighbors = list(self._adjacency_list[vertex].keys()) if self._weighted else list(self._adjacency_list[vertex])
+            for neighbor in sorted(neighbors):  # Sort for consistent ordering
+                if neighbor not in visited:
+                    dfs_recursive(neighbor)
+        
+        dfs_recursive(start)
+        return result
+    
+    def bfs(self, start: Any, end: Optional[Any] = None) -> List[Any]:
+        """
+        Perform Breadth-First Search (BFS) starting from a given vertex.
+        
+        Args:
+            start: Starting vertex for the search
+            end: Optional ending vertex. If provided, stops when reached.
+            
+        Returns:
+            List of vertices in the order they were visited during BFS
+            
+        Example:
+            >>> g = Graph()
+            >>> g.add_edge('A', 'B')
+            >>> g.add_edge('A', 'C')
+            >>> g.add_edge('B', 'D')
+            >>> traversal = g.bfs('A')
+            >>> print(traversal)  # ['A', 'B', 'C', 'D']
+        """
+        if start not in self._adjacency_list:
+            return []
+        
+        queue = [start]
+        visited = {start}
+        result = []
+        
+        while queue:
+            vertex = queue.pop(0)
+            result.append(vertex)
+            
+            if end and vertex == end:
+                break
+            
+            neighbors = list(self._adjacency_list[vertex].keys()) if self._weighted else list(self._adjacency_list[vertex])
+            for neighbor in sorted(neighbors):  # Sort for consistent ordering
+                if neighbor not in visited:
+                    visited.add(neighbor)
+                    queue.append(neighbor)
+        
+        return result
+    
+    def find_shortest_path(self, start: Any, end: Any) -> Optional[tuple]:
+        """
+        Find the shortest path between two vertices.
+        
+        For unweighted graphs: Uses BFS, returns shortest path by edge count.
+        For weighted graphs: Uses Dijkstra's algorithm, returns shortest path by total weight.
+        Works for both directed and undirected graphs.
+        
+        Args:
+            start: Starting vertex
+            end: Ending vertex
+            
+        Returns:
+            Tuple (path, distance) where:
+                - path is a list of vertices representing the shortest path
+                - distance is the total weight (or edge count for unweighted)
+            Returns None if no path exists.
+            
+        Example:
+            >>> g = Graph(weighted=True)
+            >>> g.add_edge('A', 'B', 4)
+            >>> g.add_edge('A', 'C', 2)
+            >>> g.add_edge('C', 'B', 1)
+            >>> path, dist = g.find_shortest_path('A', 'B')
+            >>> print(path)  # ['A', 'C', 'B']
+            >>> print(dist)  # 3
+        """
+        if start not in self._adjacency_list or end not in self._adjacency_list:
+            return None
+        
+        if start == end:
+            return ([start], 0)
+        
+        if not self._weighted:
+            # BFS for unweighted graphs (shortest by edge count)
+            queue = [(start, [start], 0)]
+            visited = {start}
+            
+            while queue:
+                vertex, path, dist = queue.pop(0)
+                
+                neighbors = list(self._adjacency_list[vertex].keys()) if self._weighted else list(self._adjacency_list[vertex])
+                
+                for neighbor in neighbors:
+                    if neighbor == end:
+                        return (path + [neighbor], dist + 1)
+                    
+                    if neighbor not in visited:
+                        visited.add(neighbor)
+                        queue.append((neighbor, path + [neighbor], dist + 1))
+            
+            return None
+        else:
+            # Dijkstra's algorithm for weighted graphs
+            import heapq
+            
+            # Initialize distances and previous vertices
+            distances = {vertex: float('inf') for vertex in self._adjacency_list}
+            distances[start] = 0
+            previous = {vertex: None for vertex in self._adjacency_list}
+            
+            # Priority queue: (distance, vertex)
+            pq = [(0, start)]
+            visited = set()
+            
+            while pq:
+                current_dist, current = heapq.heappop(pq)
+                
+                if current in visited:
+                    continue
+                
+                visited.add(current)
+                
+                if current == end:
+                    # Reconstruct path
+                    path = []
+                    node = end
+                    while node is not None:
+                        path.insert(0, node)
+                        node = previous[node]
+                    return (path, distances[end])
+                
+                # Check all neighbors
+                for neighbor, weight in self._adjacency_list[current].items():
+                    if neighbor not in visited:
+                        new_dist = current_dist + weight
+                        if new_dist < distances[neighbor]:
+                            distances[neighbor] = new_dist
+                            previous[neighbor] = current
+                            heapq.heappush(pq, (new_dist, neighbor))
+            
+            return None
+    
+    def dijkstra(self, start: Any) -> Dict[Any, tuple]:
+        """
+        Run Dijkstra's algorithm to find shortest paths from start vertex to all other vertices.
+        Only works for weighted graphs.
+        
+        Args:
+            start: Starting vertex
+            
+        Returns:
+            Dictionary mapping each vertex to (distance, path) from start vertex.
+            Returns empty dict if graph is unweighted or start vertex doesn't exist.
+            
+        Example:
+            >>> g = Graph(weighted=True)
+            >>> g.add_edge('A', 'B', 4)
+            >>> g.add_edge('A', 'C', 2)
+            >>> g.add_edge('C', 'B', 1)
+            >>> result = g.dijkstra('A')
+            >>> print(result['B'])  # (3, ['A', 'C', 'B'])
+        """
+        if not self._weighted or start not in self._adjacency_list:
+            return {}
+        
+        import heapq
+        
+        # Initialize distances and previous vertices
+        distances = {vertex: float('inf') for vertex in self._adjacency_list}
+        distances[start] = 0
+        previous = {vertex: None for vertex in self._adjacency_list}
+        
+        # Priority queue: (distance, vertex)
+        pq = [(0, start)]
+        visited = set()
+        
+        while pq:
+            current_dist, current = heapq.heappop(pq)
+            
+            if current in visited:
+                continue
+            
+            visited.add(current)
+            
+            # Check all neighbors
+            for neighbor, weight in self._adjacency_list[current].items():
+                if neighbor not in visited:
+                    new_dist = current_dist + weight
+                    if new_dist < distances[neighbor]:
+                        distances[neighbor] = new_dist
+                        previous[neighbor] = current
+                        heapq.heappush(pq, (new_dist, neighbor))
+        
+        # Reconstruct paths
+        result = {}
+        for vertex in self._adjacency_list:
+            if distances[vertex] != float('inf'):
+                path = []
+                node = vertex
+                while node is not None:
+                    path.insert(0, node)
+                    node = previous[node]
+                result[vertex] = (distances[vertex], path)
+            else:
+                result[vertex] = (float('inf'), [])
+        
+        return result
+    
+    def minimum_spanning_tree_kruskal(self) -> Optional['Graph']:
+        """
+        Find the Minimum Spanning Tree (MST) using Kruskal's algorithm.
+        Only works for undirected weighted graphs.
+        
+        Returns:
+            New Graph object representing the MST, or None if graph is directed or unweighted
+            
+        Example:
+            >>> g = Graph(directed=False, weighted=True)
+            >>> g.add_edge('A', 'B', 4)
+            >>> g.add_edge('A', 'C', 2)
+            >>> g.add_edge('B', 'C', 1)
+            >>> g.add_edge('B', 'D', 5)
+            >>> mst = g.minimum_spanning_tree_kruskal()
+            >>> print(mst.get_edges())  # [('B', 'C', 1), ('A', 'C', 2), ('B', 'D', 5)]
+        """
+        if self._directed or not self._weighted:
+            return None
+        
+        if not self._adjacency_list:
+            return Graph(directed=False, weighted=True)
+        
+        # Union-Find (Disjoint Set) data structure
+        class UnionFind:
+            def __init__(self, vertices):
+                self.parent = {v: v for v in vertices}
+                self.rank = {v: 0 for v in vertices}
+            
+            def find(self, x):
+                if self.parent[x] != x:
+                    self.parent[x] = self.find(self.parent[x])  # Path compression
+                return self.parent[x]
+            
+            def union(self, x, y):
+                root_x, root_y = self.find(x), self.find(y)
+                if root_x != root_y:
+                    # Union by rank
+                    if self.rank[root_x] < self.rank[root_y]:
+                        self.parent[root_x] = root_y
+                    elif self.rank[root_x] > self.rank[root_y]:
+                        self.parent[root_y] = root_x
+                    else:
+                        self.parent[root_y] = root_x
+                        self.rank[root_x] += 1
+                    return True
+                return False
+        
+        # Get all edges and sort by weight
+        edges = self.get_edges()
+        edges.sort(key=lambda x: x[2])  # Sort by weight
+        
+        # Initialize Union-Find and MST
+        uf = UnionFind(self.get_vertices())
+        mst = Graph(directed=False, weighted=True)
+        
+        # Add all vertices to MST
+        for vertex in self.get_vertices():
+            mst.add_vertex(vertex)
+        
+        # Kruskal's algorithm
+        for u, v, weight in edges:
+            if uf.union(u, v):  # If adding this edge doesn't create a cycle
+                mst.add_edge(u, v, weight)
+                # Stop when we have n-1 edges (complete MST)
+                if mst.edge_count() == self.vertex_count() - 1:
+                    break
+        
+        return mst
+    
+    def minimum_spanning_tree_prim(self) -> Optional['Graph']:
+        """
+        Find the Minimum Spanning Tree (MST) using Prim's algorithm.
+        Only works for undirected weighted graphs.
+        
+        Returns:
+            New Graph object representing the MST, or None if graph is directed or unweighted
+            
+        Example:
+            >>> g = Graph(directed=False, weighted=True)
+            >>> g.add_edge('A', 'B', 4)
+            >>> g.add_edge('A', 'C', 2)
+            >>> g.add_edge('B', 'C', 1)
+            >>> g.add_edge('B', 'D', 5)
+            >>> mst = g.minimum_spanning_tree_prim()
+            >>> print(mst.total_weight())  # 8
+        """
+        if self._directed or not self._weighted:
+            return None
+        
+        if not self._adjacency_list:
+            return Graph(directed=False, weighted=True)
+        
+        import heapq
+        
+        # Start with arbitrary vertex
+        start_vertex = next(iter(self._adjacency_list))
+        mst = Graph(directed=False, weighted=True)
+        
+        # Add all vertices to MST
+        for vertex in self.get_vertices():
+            mst.add_vertex(vertex)
+        
+        # Keep track of vertices in MST
+        in_mst = {start_vertex}
+        
+        # Priority queue of edges: (weight, u, v)
+        pq = []
+        
+        # Add all edges from start vertex
+        for neighbor, weight in self._adjacency_list[start_vertex].items():
+            heapq.heappush(pq, (weight, start_vertex, neighbor))
+        
+        while pq and len(in_mst) < self.vertex_count():
+            weight, u, v = heapq.heappop(pq)
+            
+            # Skip if both vertices are already in MST
+            if v in in_mst:
+                continue
+            
+            # Add edge to MST
+            mst.add_edge(u, v, weight)
+            in_mst.add(v)
+            
+            # Add all edges from newly added vertex
+            for neighbor, edge_weight in self._adjacency_list[v].items():
+                if neighbor not in in_mst:
+                    heapq.heappush(pq, (edge_weight, v, neighbor))
+        
+        return mst
+    
     def is_simple_path(self, path: List[Any]) -> bool:
         """Check if a path is simple (all vertices are pairwise distinct)."""
         if not path:
@@ -543,6 +920,135 @@ class Graph:
                     if dfs_undirected(vertex, None):
                         return True
             return False
+    
+    def find_all_cycles(self) -> List[List[Any]]:
+        """
+        Find all simple cycles in the graph.
+        
+        Returns:
+            List of cycles, where each cycle is represented as a list of vertices
+        """
+        cycles = []
+        
+        if not self._adjacency_list:
+            return cycles
+        
+        if self._directed:
+            # For directed graphs: Find all cycles using Johnson's algorithm approach
+            visited_global = set()
+            
+            def find_cycles_from_vertex(start_vertex: Any):
+                stack = [start_vertex]
+                path = [start_vertex]
+                path_set = {start_vertex}
+                blocked = set()
+                B = {v: set() for v in self._adjacency_list}
+                
+                def unblock(vertex: Any):
+                    blocked.discard(vertex)
+                    for w in B[vertex]:
+                        if w in blocked:
+                            unblock(w)
+                    B[vertex].clear()
+                
+                def dfs(vertex: Any) -> bool:
+                    found_cycle = False
+                    blocked.add(vertex)
+                    
+                    neighbors = list(self._adjacency_list[vertex].keys()) if self._weighted else list(self._adjacency_list[vertex])
+                    for neighbor in neighbors:
+                        if neighbor == start_vertex:
+                            # Found cycle back to start
+                            cycles.append(path + [start_vertex])
+                            found_cycle = True
+                        elif neighbor not in blocked and neighbor not in visited_global:
+                            path.append(neighbor)
+                            path_set.add(neighbor)
+                            if dfs(neighbor):
+                                found_cycle = True
+                            path.pop()
+                            path_set.discard(neighbor)
+                    
+                    if found_cycle:
+                        unblock(vertex)
+                    else:
+                        for neighbor in (list(self._adjacency_list[vertex].keys()) if self._weighted else list(self._adjacency_list[vertex])):
+                            B[neighbor].add(vertex)
+                    
+                    return found_cycle
+                
+                dfs(start_vertex)
+                visited_global.add(start_vertex)
+            
+            for vertex in self._adjacency_list:
+                if vertex not in visited_global:
+                    find_cycles_from_vertex(vertex)
+        
+        else:
+            # For undirected graphs: use DFS to find all elementary cycles
+            visited_global = set()
+            
+            def find_cycles_from_vertex(start_vertex: Any):
+                visited_local = set()
+                
+                def dfs(current: Any, path: List[Any], parent: Optional[Any] = None):
+                    if current in path:
+                        # Found a cycle
+                        cycle_start_idx = path.index(current)
+                        cycle = path[cycle_start_idx:] + [current]
+                        if len(cycle) >= 4:  # At least 3 unique vertices + closing
+                            cycles.append(cycle)
+                        return
+                    
+                    if current in visited_local:
+                        return
+                    
+                    visited_local.add(current)
+                    path.append(current)
+                    
+                    neighbors = list(self._adjacency_list[current].keys()) if self._weighted else list(self._adjacency_list[current])
+                    for neighbor in neighbors:
+                        if neighbor != parent:  # Don't go back to parent immediately
+                            dfs(neighbor, path, current)
+                    
+                    path.pop()
+                
+                dfs(start_vertex, [])
+                visited_global.add(start_vertex)
+            
+            for vertex in self._adjacency_list:
+                if vertex not in visited_global:
+                    find_cycles_from_vertex(vertex)
+        
+        # Remove duplicate cycles
+        unique_cycles = []
+        seen_cycles = set()
+        
+        for cycle in cycles:
+            if len(cycle) <= 1:
+                continue
+            
+            # Normalize cycle: start with smallest vertex and choose direction with smaller lexicographic order
+            cycle_vertices = cycle[:-1] if cycle[0] == cycle[-1] else cycle
+            if not cycle_vertices:
+                continue
+                
+            min_vertex = min(cycle_vertices)
+            min_idx = cycle_vertices.index(min_vertex)
+            
+            # Create two possible normalizations (clockwise and counterclockwise)
+            normalized1 = cycle_vertices[min_idx:] + cycle_vertices[:min_idx]
+            normalized2 = (cycle_vertices[min_idx:] + cycle_vertices[:min_idx])[::-1]
+            normalized2 = [normalized2[0]] + normalized2[1:][::-1]
+            
+            # Choose the lexicographically smaller one
+            normalized = tuple(min(normalized1, normalized2))
+            
+            if normalized not in seen_cycles:
+                seen_cycles.add(normalized)
+                unique_cycles.append(list(normalized) + [normalized[0]])
+        
+        return unique_cycles
     
     def find_cycles(self) -> List[List[Any]]:
         """Find all simple cycles in the graph."""
@@ -843,6 +1349,39 @@ class Graph:
         
         return graph
     
+    def get_adjacency_list(self) -> Dict[Any, Union[List[Any], List[tuple]]]:
+        """
+        Get a copy of the adjacency list representation of the graph.
+        This dictionary can be used to create a new graph with the same structure.
+        
+        For unweighted graphs: Returns Dict[vertex, List[neighbor]]
+        For weighted graphs: Returns Dict[vertex, List[(neighbor, weight)]]
+        
+        Returns:
+            Dictionary representing the adjacency list of the graph
+            
+        Example:
+            >>> g = Graph(directed=False, weighted=True)
+            >>> g.add_edge('A', 'B', 10)
+            >>> g.add_edge('B', 'C', 5)
+            >>> adj_list = g.get_adjacency_list()
+            >>> print(adj_list)
+            {'A': [('B', 10)], 'B': [('A', 10), ('C', 5)], 'C': [('B', 5)]}
+            >>> # Create new graph from adjacency list
+            >>> g2 = Graph(directed=False, weighted=True, data=adj_list)
+        """
+        result = {}
+        
+        for vertex in self._adjacency_list:
+            if self._weighted:
+                # For weighted graphs: list of tuples (neighbor, weight)
+                result[vertex] = [(neighbor, weight) for neighbor, weight in self._adjacency_list[vertex].items()]
+            else:
+                # For unweighted graphs: list of neighbors
+                result[vertex] = list(self._adjacency_list[vertex])
+        
+        return result
+    
     def visualize(self, title: Optional[str] = None, figsize: tuple = (12, 9), 
                  positions: Optional[Dict[Any, tuple]] = None):
         """
@@ -1021,7 +1560,6 @@ def main():
     g_vis.add_edge('B', 'D', 4)
 
     print(f"   Visualizing graph: {g_vis}")
-    print("   Displaying visualization...")
     g_vis.visualize(title="Test Weighted Undirected Graph")
 
     # Test directed graph visualization
@@ -1029,7 +1567,6 @@ def main():
     g_vis_dir.add_edge('Start', 'Middle')
     g_vis_dir.add_edge('Middle', 'End')
     g_vis_dir.add_edge('Start', 'End')
-
     print(f"   Visualizing directed graph: {g_vis_dir}")
     print("   Displaying directed graph visualization...")
     g_vis_dir.visualize(title="Test Directed Graph", figsize=(10, 8))

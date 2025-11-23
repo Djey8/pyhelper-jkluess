@@ -1,6 +1,6 @@
 # Complex Data Structures
 
-Advanced structures: Graphs and Skip Lists.
+Advanced structures: Graphs, Trees, and Skip Lists.
 
 ## Graphs
 
@@ -44,6 +44,46 @@ g2 = UndirectedGraph()
 ```
 
 See [Graphs README](Graphs/README.md) for details.
+
+## Trees
+
+**Required:** `pip install networkx matplotlib`
+
+- **Tree** - Hierarchical data structure (file systems, org charts, decision trees)
+- **TreeNode** - Individual node with parent-child relationships
+
+**Tree Features:**
+- Tree property: m = n - 1 (edges = nodes - 1)
+- Traversals: Preorder, Inorder, Postorder, Level-order
+- Path finding using Lowest Common Ancestor (LCA)
+- Statistics and metrics (height, depth, leaves, inner nodes)
+- Connected and acyclic by definition
+
+```python
+from Complex.Trees.tree import Tree
+
+# Create tree
+tree = Tree("Root")
+
+# Add children
+child_a = tree.add_child(tree.root, "A")
+child_b = tree.add_child(tree.root, "B")
+tree.add_child(child_a, "A1")
+tree.add_child(child_a, "A2")
+
+# Traversals
+print(tree.traverse_preorder())    # ['Root', 'A', 'A1', 'A2', 'B']
+print(tree.traverse_levelorder())  # ['Root', 'A', 'B', 'A1', 'A2']
+
+# Path between nodes
+path = tree.find_path(child_a, child_b)
+
+# Visualization
+tree.print_tree()
+tree.visualize(root_position="top")
+```
+
+See [Trees README](Trees/README.md) for details.
 
 ## Skip Lists
 

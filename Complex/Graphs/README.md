@@ -12,7 +12,6 @@ All graph classes inherit from a single, powerful **`Graph`** base class that ad
 - **WeightedUndirectedGraph** - inherits from `Graph(directed=False, weighted=True)`
 - **WeightedDirectedGraph** - inherits from `Graph(directed=True, weighted=True)`
 
-**Benefits:** 64% code reduction (2,257 lines eliminated), consistent API, all classes share core functionality.
 
 ## Graph - Unified Base Class (Use Directly or via Specialized Classes)
 
@@ -52,6 +51,96 @@ print(g4.weighted_out_degree("A"))  # 10
 - **Matrix Conversion:** Bidirectional adjacency matrix support
 
 **Use this class for:** Maximum flexibility when graph type may change or when working with multiple graph types in one project.
+
+## Key Operations
+
+```python
+# Add/remove
+g.add_vertex("A")
+g.add_edge("A", "B")              # Unweighted
+g.add_edge("A", "B", 10)          # Weighted graphs
+g.remove_edge("A", "B")
+g.remove_vertex("A")
+
+# Query
+g.has_vertex("A")
+g.has_edge("A", "B")
+g.get_vertices()
+g.get_edges()
+g.get_neighbors("A")
+
+# Weighted graphs only
+g.get_edge_weight("A", "B")       # Get edge weight
+g.update_edge_weight("A", "B", 15)  # Update edge weight
+g.get_weighted_neighbors("A")     # WeightedUndirected: {'B': 10, ...}, Others: [(neighbor, weight), ...]
+g.weighted_degree("A")            # Sum of edge weights
+g.total_weight()                  # Sum of all edge weights
+g.get_weight_statistics()         # Min/max/average/total weights (specialized classes)
+
+# DirectedGraph only
+g.get_predecessors("A")           # Who points to A?
+g.in_degree("A")                  # How many point to A?
+g.out_degree("A")                 # How many does A point to?
+
+# Graph theory (all graph types)
+g.degree("A")                     # Total degree
+g.is_simple_graph()               # Check for self-loops
+g.get_degree_sequence()           # Degree sequence (specialized classes)
+g.get_graph_info()                # Statistics dict (specialized classes)
+g.print_graph_analysis()          # Detailed analysis (specialized classes)
+
+# Graph class properties
+g.is_directed                     # Check if directed
+g.is_weighted                     # Check if weighted
+
+# Paths and cycles (all graph types)
+g.find_path("A", "B")             # Find a path between vertices (BFS)
+g.find_shortest_path("A", "B")    # Find shortest path (returns (path, distance))
+                                  # - Unweighted: BFS (shortest by edge count)
+                                  # - Weighted: Dijkstra (shortest by total weight)
+g.is_reachable("A", "B")          # Check reachability
+g.path_length(path)               # Number of edges in path
+g.path_weight(path)               # Sum of edge weights (weighted only)
+g.has_cycle()                     # Check for cycles
+g.find_cycles()                   # Find all simple cycles
+g.find_all_cycles()               # Find all cycles comprehensively
+g.is_acyclic()                    # Check if acyclic
+
+# Search algorithms (all graph types)
+g.dfs("A")                        # Depth-first search from A
+g.dfs("A", end="D")              # DFS stopping at D
+g.bfs("A")                        # Breadth-first search from A
+g.bfs("A", end="D")              # BFS stopping at D
+g.dijkstra("A")                   # Dijkstra's algorithm from A (weighted only)
+                                  # Returns: Dict[vertex: (distance, path)]
+
+# Minimum spanning tree (weighted undirected only)
+g.minimum_spanning_tree_kruskal() # MST using Kruskal's algorithm
+g.minimum_spanning_tree_prim()    # MST using Prim's algorithm
+
+# Connectivity (all graph types)
+g.is_connected()                  # Undirected: is connected
+g.is_strongly_connected()         # Directed: is strongly connected
+g.get_connected_components()      # Undirected: connected components
+g.get_strongly_connected_components()  # Directed: strongly connected components
+
+# Matrix and list operations (all graph types)
+g.get_adjacency_matrix()          # Get adjacency matrix
+g.get_adjacency_list()            # Get adjacency list (for creating new graphs)
+Graph.from_adjacency_matrix(matrix, vertices)  # Create from matrix
+
+# Visualize
+g.visualize(title="My Graph", figsize=(12, 8))
+# Custom node positioning for visualization
+my_pos = {
+    'A': (0, 1),
+    'B': (0, 0), 
+    'C': (2, 0),
+    'D': (2, 1),
+    'E': (1, 3)
+}
+g.visualize(positions=custom_pos)  # Custom node positions
+```
 
 ## UndirectedGraph - Symmetric Edges (Inherits from Graph)
 
@@ -160,71 +249,6 @@ g.visualize(title="Task Network")
 
 **Use for:** Optimized task scheduling, network routing, weighted dependencies.
 
-## Key Operations
-
-```python
-# Add/remove
-g.add_vertex("A")
-g.add_edge("A", "B")              # Unweighted
-g.add_edge("A", "B", 10)          # Weighted graphs
-g.remove_edge("A", "B")
-g.remove_vertex("A")
-
-# Query
-g.has_vertex("A")
-g.has_edge("A", "B")
-g.get_vertices()
-g.get_edges()
-g.get_neighbors("A")
-
-# Weighted graphs only
-g.get_edge_weight("A", "B")       # Get edge weight
-g.update_edge_weight("A", "B", 15)  # Update edge weight
-g.get_weighted_neighbors("A")     # WeightedUndirected: {'B': 10, ...}, Others: [(neighbor, weight), ...]
-g.weighted_degree("A")            # Sum of edge weights
-g.total_weight()                  # Sum of all edge weights
-g.get_weight_statistics()         # Min/max/average/total weights (specialized classes)
-
-# DirectedGraph only
-g.get_predecessors("A")           # Who points to A?
-g.in_degree("A")                  # How many point to A?
-g.out_degree("A")                 # How many does A point to?
-
-# Graph theory (all graph types)
-g.degree("A")                     # Total degree
-g.is_simple_graph()               # Check for self-loops
-g.get_degree_sequence()           # Degree sequence (specialized classes)
-g.get_graph_info()                # Statistics dict (specialized classes)
-g.print_graph_analysis()          # Detailed analysis (specialized classes)
-
-# Graph class properties
-g.is_directed                     # Check if directed
-g.is_weighted                     # Check if weighted
-
-# Paths and cycles (all graph types)
-g.find_path("A", "B")             # Find path between vertices
-g.is_reachable("A", "B")          # Check reachability
-g.path_length(path)               # Number of edges in path
-g.path_weight(path)               # Sum of edge weights (weighted only)
-g.has_cycle()                     # Check for cycles
-g.find_cycles()                   # Find all simple cycles
-g.is_acyclic()                    # Check if acyclic
-
-# Connectivity (all graph types)
-g.is_connected()                  # Undirected: is connected
-g.is_strongly_connected()         # Directed: is strongly connected
-g.get_connected_components()      # Undirected: connected components
-g.get_strongly_connected_components()  # Directed: strongly connected components
-
-# Matrix operations (all graph types)
-g.get_adjacency_matrix()          # Get adjacency matrix
-Graph.from_adjacency_matrix(matrix, vertices)  # Create from matrix
-
-# Visualize
-g.visualize(title="My Graph", figsize=(12, 8))
-g.visualize(positions=custom_pos)  # Custom node positions
-```
-
 ## Graph Theory Concepts
 
 All graph implementations support fundamental graph theory operations.
@@ -240,9 +264,15 @@ All graph implementations support fundamental graph theory operations.
 A path is **simple** if all vertices are pairwise distinct. Vertex v' is **reachable** from v if a path exists from v to v'.
 
 ```python
-# Find a path between two vertices
+# Find a path between two vertices (BFS)
 path = g.find_path("A", "D")
 print(path)  # ['A', 'B', 'C', 'D']
+
+# Find shortest path (optimal for all graph types)
+path, distance = g.find_shortest_path("A", "D")
+print(f"Path: {path}, Distance: {distance}")
+# For unweighted: uses BFS, distance = edge count
+# For weighted: uses Dijkstra, distance = total weight
 
 # Check if vertex is reachable
 print(g.is_reachable("A", "D"))  # True
@@ -253,6 +283,29 @@ is_simple = g.is_simple_path(path)  # All vertices distinct?
 
 # For weighted graphs: get path weight
 weight = g.path_weight(path)  # Sum of edge weights
+```
+
+**Shortest Path Examples:**
+
+```python
+# Unweighted graph - shortest by edge count
+g = Graph(directed=False, weighted=False)
+g.add_edge('A', 'B')
+g.add_edge('B', 'C')
+g.add_edge('A', 'D')
+g.add_edge('D', 'C')
+
+path, distance = g.find_shortest_path('A', 'C')
+# Returns: (['A', 'B', 'C'] or ['A', 'D', 'C'], 2)
+
+# Weighted graph - shortest by total weight
+g = Graph(directed=False, weighted=True)
+g.add_edge('A', 'B', 4)
+g.add_edge('A', 'C', 2)
+g.add_edge('C', 'B', 1)
+
+path, distance = g.find_shortest_path('A', 'B')
+# Returns: (['A', 'C', 'B'], 3) - goes via C because 2+1 < 4
 ```
 
 **Note:** The geometric position of vertices in visualizations has no mathematical significance. Two vertices must not be at the same position.
@@ -339,6 +392,38 @@ weighted_matrix = [
 g = WeightedUndirectedGraph.from_adjacency_matrix(weighted_matrix, vertices)
 ```
 
+### Adjacency List Export/Import
+
+The `get_adjacency_list()` method allows you to export the graph structure and recreate it later:
+
+```python
+from Complex.Graphs.graph import Graph
+
+# Create and populate a graph
+g1 = Graph(directed=False, weighted=True)
+g1.add_edge('A', 'B', 10)
+g1.add_edge('B', 'C', 5)
+g1.add_edge('A', 'C', 8)
+
+# Export adjacency list
+adj_list = g1.get_adjacency_list()
+print(adj_list)
+# Output: {'A': [('B', 10), ('C', 8)], 
+#          'B': [('A', 10), ('C', 5)], 
+#          'C': [('A', 8), ('B', 5)]}
+
+# Create a new graph from the adjacency list
+g2 = Graph(directed=False, weighted=True, data=adj_list)
+
+# g2 is now an exact copy of g1
+assert g2.vertex_count() == g1.vertex_count()
+assert g2.edge_count() == g1.edge_count()
+```
+
+**Format:**
+- **Unweighted graphs**: `Dict[vertex, List[neighbor]]`
+- **Weighted graphs**: `Dict[vertex, List[(neighbor, weight)]]`
+
 ### Example: Complete Analysis
 
 ```python
@@ -412,24 +497,6 @@ class WeightedDirectedGraph(Graph):
     # Only ~8 specialized methods
 ```
 
-### Code Statistics
-
-| Class | Original Lines | Refactored Lines | Lines Saved | Reduction |
-|-------|---------------|------------------|-------------|-----------|
-| **UndirectedGraph** | 743 | 209 | 534 | 71.9% |
-| **DirectedGraph** | 869 | 221 | 648 | 74.6% |
-| **WeightedDirectedGraph** | 1,019 | 421 | 598 | 58.7% |
-| **WeightedUndirectedGraph** | 873 | 396 | 477 | 54.6% |
-| **Graph (base)** | — | 1,031 | — | — |
-| **TOTAL** | 3,504 | 2,278 | **2,257** | **64.4%** |
-
-**Benefits:**
-- ✅ 2,257 lines of duplicate code eliminated
-- ✅ All 398 tests passing
-- ✅ Consistent API across all graph types
-- ✅ Easier maintenance and bug fixes
-- ✅ Both package imports and direct script execution supported
-
 ### Import Compatibility
 
 All classes support both import styles:
@@ -444,5 +511,4 @@ from graph import Graph
 from undirected_graph import UndirectedGraph
 ```
 
-This is achieved using try-except import blocks in each file.
 
