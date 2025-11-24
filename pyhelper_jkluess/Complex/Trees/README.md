@@ -109,12 +109,15 @@ tree.get_statistics()                 # Dict with all metrics
 #          inner_node_count, satisfies_tree_property, 
 #          is_connected, is_acyclic
 
-# Import/Export Adjacency Representations
-matrix = tree.get_adjacency_matrix()  # Export to matrix
-labels = tree.get_node_labels()        # Get labels for matrix reconstruction
-adj_list = tree.get_adjacency_list()  # Export to adjacency list
+# Import/Export Representations
+matrix = tree.get_adjacency_matrix()      # Export to matrix
+labels = tree.get_node_labels()            # Get labels for matrix reconstruction
+adj_list = tree.get_adjacency_list()      # Export to adjacency list (unique values)
+nested = tree.to_nested_structure()       # Export to nested structure (handles duplicates)
+
 tree2 = Tree.from_adjacency_matrix(matrix, labels)  # Import from matrix
 tree3 = Tree.from_adjacency_list(adj_list, root)    # Import from list
+tree4 = Tree.from_nested_structure(nested)          # Import from nested structure
 
 # Visualization
 tree.print_tree()                     # ASCII tree structure
@@ -225,6 +228,14 @@ math_tree.print_tree()
 #         └── 3
 
 # Both * nodes and both 3 nodes are distinct despite having the same value
+
+# Export back to nested structure
+exported = math_tree.to_nested_structure()
+# ('+', [('*', [('+', [3, 4]), 5]), ('*', [2, 3])])
+
+# Can recreate exact tree
+math_tree2 = Tree.from_nested_structure(exported)
+# Both * nodes and both 3 nodes are preserved as distinct nodes
 ```
 
 ### Round-trip Conversion
@@ -316,7 +327,7 @@ print(f"ICs: {[n.data for n in org.get_leaves()]}")
 
 ## All Available Operations
 
-### **Tree Class Operations (40 total)**
+### **Tree Class Operations (41 total)**
 
 **Creation & Basic (4):**
 - `Tree(root_data=None)` - Create tree
@@ -324,12 +335,13 @@ print(f"ICs: {[n.data for n in org.get_leaves()]}")
 - `set_root(data)` - Set/change root
 - `add_child(parent, child_data)` - Add child
 
-**Import/Export (6):**
+**Import/Export (7):**
 - `from_adjacency_matrix(matrix, labels)` - Create from matrix (classmethod)
 - `from_adjacency_list(adj_list, root)` - Create from list (classmethod)
 - `from_nested_structure(structure)` - Create from nested tuples/lists (classmethod)
 - `get_adjacency_matrix()` - Export to matrix
-- `get_adjacency_list()` - Export to adjacency list
+- `get_adjacency_list()` - Export to adjacency list (unique values only)
+- `to_nested_structure()` - Export to nested structure (handles duplicates)
 - `get_node_labels()` - Get labels in matrix order for reconstruction
 
 **Node Counting & Properties (4):**

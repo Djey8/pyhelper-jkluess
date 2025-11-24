@@ -1240,6 +1240,137 @@ class TestTreeFromNestedStructure:
         assert len(tree.root.children[1].children) == 2
 
 
+class TestToNestedStructure:
+    def test_to_nested_structure_simple_tree(self):
+        """Test converting simple tree to nested structure"""
+        tree = Tree('A')
+        tree.add_child(tree.root, 'B')
+        tree.add_child(tree.root, 'C')
+        
+        structure = tree.to_nested_structure()
+        
+        # Should be ('A', ['B', 'C'])
+        assert structure == ('A', ['B', 'C'])
+    
+    def test_to_nested_structure_single_node(self):
+        """Test converting single node tree"""
+        tree = Tree('Root')
+        structure = tree.to_nested_structure()
+        
+        # Leaf node should just be the value
+        assert structure == 'Root'
+    
+    def test_to_nested_structure_empty_tree(self):
+        """Test converting empty tree"""
+        tree = Tree()
+        structure = tree.to_nested_structure()
+        
+        assert structure is None
+    
+    def test_to_nested_structure_multilevel(self):
+        """Test converting multi-level tree"""
+        tree = Tree('Root')
+        a = tree.add_child(tree.root, 'A')
+        tree.add_child(tree.root, 'B')
+        tree.add_child(a, 'A1')
+        tree.add_child(a, 'A2')
+        
+        structure = tree.to_nested_structure()
+        
+        # Should be ('Root', [('A', ['A1', 'A2']), 'B'])
+        assert structure == ('Root', [('A', ['A1', 'A2']), 'B'])
+    
+    def test_to_nested_structure_with_duplicates(self):
+        """Test converting tree with duplicate values"""
+        tree = Tree('+')
+        left = tree.add_child(tree.root, '*')
+        tree.add_child(left, 3)
+        tree.add_child(left, 4)
+        right = tree.add_child(tree.root, '*')
+        tree.add_child(right, 5)
+        
+        structure = tree.to_nested_structure()
+        
+        # Should be ('+', [('*', [3, 4]), ('*', [5])])
+        assert structure == ('+', [('*', [3, 4]), ('*', [5])])
+    
+    def test_nested_structure_round_trip(self):
+        """Test creating tree, exporting, and recreating"""
+        # Create original tree with duplicate values
+        tree1 = Tree('+')
+        left = tree1.add_child(tree1.root, '*')
+        plus_node = tree1.add_child(left, '+')
+        tree1.add_child(plus_node, 3)
+        tree1.add_child(plus_node, 4)
+        tree1.add_child(left, 5)
+        right = tree1.add_child(tree1.root, '*')
+        tree1.add_child(right, 2)
+        tree1.add_child(right, 3)
+        
+        # Export to nested structure
+        structure = tree1.to_nested_structure()
+        
+        # Recreate from structure
+        tree2 = Tree.from_nested_structure(structure)
+        
+        # Trees should be identical
+        assert tree1.get_node_count() == tree2.get_node_count()
+        assert tree1.get_height() == tree2.get_height()
+        assert tree1.traverse_levelorder() == tree2.traverse_levelorder()
+        
+        # Export again should give same structure
+        structure2 = tree2.to_nested_structure()
+        assert structure == structure2
+    
+    def test_to_nested_structure_deep_tree(self):
+        """Test converting deep nested tree"""
+        tree = Tree(1)
+        level1 = tree.add_child(tree.root, 2)
+        level2 = tree.add_child(level1, 3)
+        tree.add_child(level2, 4)
+        
+        structure = tree.to_nested_structure()
+        
+        # Should be (1, [(2, [(3, [4])])])
+        assert structure == (1, [(2, [(3, [4])])])
+    
+    def test_to_nested_structure_preserves_order(self):
+        """Test that child order is preserved"""
+        tree = Tree('Root')
+        tree.add_child(tree.root, 'First')
+        tree.add_child(tree.root, 'Second')
+        tree.add_child(tree.root, 'Third')
+        
+        structure = tree.to_nested_structure()
+        
+        assert structure == ('Root', ['First', 'Second', 'Third'])
+    
+    def test_to_nested_structure_math_expression(self):
+        """Test converting complex math expression tree"""
+        # Build: (3 + 4) * 5 + 2 * 3
+        tree = Tree('+')
+        left_mult = tree.add_child(tree.root, '*')
+        left_plus = tree.add_child(left_mult, '+')
+        tree.add_child(left_plus, 3)
+        tree.add_child(left_plus, 4)
+        tree.add_child(left_mult, 5)
+        right_mult = tree.add_child(tree.root, '*')
+        tree.add_child(right_mult, 2)
+        tree.add_child(right_mult, 3)
+        
+        structure = tree.to_nested_structure()
+        
+        expected = ('+', [
+            ('*', [
+                ('+', [3, 4]),
+                5
+            ]),
+            ('*', [2, 3])
+        ])
+        
+        assert structure == expected
+
+
 class TestGetAdjacencyMatrix:
     def test_get_adjacency_matrix_simple_tree(self):
         """Test getting adjacency matrix from a simple tree"""

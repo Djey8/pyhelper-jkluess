@@ -34,6 +34,14 @@ print(f"  Height: {math_tree.get_height()}")
 print(f"  Leaf nodes (operands): {len(math_tree.get_leaves())}")
 print(f"  Inner nodes (operators): {len(math_tree.get_inner_nodes())}")
 
+# Export back to nested structure
+exported_structure = math_tree.to_nested_structure()
+print(f"\nExported structure: {exported_structure}")
+
+# Verify round-trip works
+math_tree_copy = Tree.from_nested_structure(exported_structure)
+print(f"Round-trip successful: {math_tree.get_node_count()} nodes → export → import → {math_tree_copy.get_node_count()} nodes")
+
 # Example 2: Parse Tree with Repeated Keywords
 print("\n\n2. Code Parse Tree with Repeated 'if' statements")
 print("-" * 70)

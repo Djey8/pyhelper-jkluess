@@ -977,6 +977,46 @@ class Tree:
         
         return adj_list
     
+    def to_nested_structure(self, node: Optional[Node] = None) -> Any:
+        """
+        Converts the tree to a nested structure representation.
+        
+        This method converts a tree into the nested tuple/list format used by
+        from_nested_structure(). This is useful for trees with duplicate node values,
+        as it preserves the exact structure without ambiguity.
+        
+        Args:
+            node: The node to start from (default: root). Used for recursion.
+            
+        Returns:
+            Nested structure where each node is either:
+            - A single value (for leaf nodes)
+            - A tuple (value, [children]) (for nodes with children)
+            
+        Example:
+            >>> tree = Tree("+")
+            >>> left = tree.add_child(tree.root, "*")
+            >>> tree.add_child(left, 3)
+            >>> tree.add_child(left, 4)
+            >>> right = tree.add_child(tree.root, "*")
+            >>> tree.add_child(right, 5)
+            >>> structure = tree.to_nested_structure()
+            >>> # ('+', [('*', [3, 4]), ('*', [5])])
+        """
+        if self.is_empty():
+            return None
+        
+        if node is None:
+            node = self.root
+        
+        # If leaf node, return just the value
+        if node.is_leaf():
+            return node.data
+        
+        # If node has children, return (value, [children])
+        children = [self.to_nested_structure(child) for child in node.children]
+        return (node.data, children)
+    
     def get_node_labels(self) -> List[Any]:
         """
         Returns the node labels in the same order as the adjacency matrix.
