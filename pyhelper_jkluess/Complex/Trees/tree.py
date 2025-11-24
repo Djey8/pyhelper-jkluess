@@ -22,10 +22,13 @@ Terms:
 - Height: maximum depth of any node
 """
 
-from typing import Any, List, Optional, Set, Dict
+from typing import Any, List, Optional, Set, Dict, TYPE_CHECKING
 from collections import deque
 import networkx as nx
 from matplotlib.patches import Patch
+
+if TYPE_CHECKING:
+    from .binary_tree import BinaryTree, BinaryNode
 
 
 class Node:
