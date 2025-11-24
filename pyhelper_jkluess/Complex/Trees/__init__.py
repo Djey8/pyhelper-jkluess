@@ -14,14 +14,17 @@ This package provides implementations of tree data structures.
 
 try:
     from pyhelper_jkluess.Complex.Trees.tree import Tree, Node
+    from pyhelper_jkluess.Complex.Trees.binary_tree import BinaryTree, BinaryNode
 except ImportError:
     try:
         from .tree import Tree, Node
+        from .binary_tree import BinaryTree, BinaryNode
     except ImportError:
         from tree import Tree, Node
+        from binary_tree import BinaryTree, BinaryNode
 
 # Export Node as TreeNode for consistency with package naming
 TreeNode = Node
 
-__all__ = ['Tree', 'TreeNode', 'Node']
+__all__ = ['Tree', 'Node', 'BinaryTree', 'BinaryNode']
 __version__ = '0.1.0'
