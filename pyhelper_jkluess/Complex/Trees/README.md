@@ -189,6 +189,44 @@ exported_list = tree.get_adjacency_list()
 print(exported_list)  # Same as original
 ```
 
+### From Nested Structure (For Duplicate Values)
+
+When you need multiple nodes with the same value (e.g., math expression trees), use nested structure:
+
+```python
+# Math expression: (3 + 4) * 5 + 2 * 3
+# Tree structure with duplicate operators:
+#        +
+#       / \
+#      *   *
+#     / \ / \
+#    +  5 2  3
+#   / \
+#  3   4
+
+structure = ('+', [
+    ('*', [
+        ('+', [3, 4]),
+        5
+    ]),
+    ('*', [2, 3])
+])
+
+math_tree = Tree.from_nested_structure(structure)
+math_tree.print_tree()
+# └── +
+#     ├── *
+#     │   ├── +
+#     │   │   ├── 3
+#     │   │   └── 4
+#     │   └── 5
+#     └── *
+#         ├── 2
+#         └── 3
+
+# Both * nodes and both 3 nodes are distinct despite having the same value
+```
+
 ### Round-trip Conversion
 
 ```python
@@ -278,7 +316,7 @@ print(f"ICs: {[n.data for n in org.get_leaves()]}")
 
 ## All Available Operations
 
-### **Tree Class Operations (39 total)**
+### **Tree Class Operations (40 total)**
 
 **Creation & Basic (4):**
 - `Tree(root_data=None)` - Create tree
@@ -286,9 +324,10 @@ print(f"ICs: {[n.data for n in org.get_leaves()]}")
 - `set_root(data)` - Set/change root
 - `add_child(parent, child_data)` - Add child
 
-**Import/Export (5):**
+**Import/Export (6):**
 - `from_adjacency_matrix(matrix, labels)` - Create from matrix (classmethod)
 - `from_adjacency_list(adj_list, root)` - Create from list (classmethod)
+- `from_nested_structure(structure)` - Create from nested tuples/lists (classmethod)
 - `get_adjacency_matrix()` - Export to matrix
 - `get_adjacency_list()` - Export to adjacency list
 - `get_node_labels()` - Get labels in matrix order for reconstruction

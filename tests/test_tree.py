@@ -1094,6 +1094,152 @@ class TestTreeCreationComparison:
         assert tree1.traverse_levelorder() == tree2.traverse_levelorder() == tree3.traverse_levelorder()
 
 
+class TestTreeFromNestedStructure:
+    def test_create_from_simple_nested_structure(self):
+        """Test creating tree from simple nested structure"""
+        # Tree: A with children B and C
+        structure = ('A', ['B', 'C'])
+        tree = Tree.from_nested_structure(structure)
+        
+        assert tree.root.data == 'A'
+        assert tree.get_node_count() == 3
+        assert tree.get_edge_count() == 2
+        assert len(tree.root.children) == 2
+        assert tree.root.children[0].data == 'B'
+        assert tree.root.children[1].data == 'C'
+    
+    def test_create_from_single_value(self):
+        """Test creating tree from single value (leaf)"""
+        structure = 'Root'
+        tree = Tree.from_nested_structure(structure)
+        
+        assert tree.root.data == 'Root'
+        assert tree.get_node_count() == 1
+        assert tree.is_empty() == False
+    
+    def test_create_math_expression_tree(self):
+        """Test creating math expression tree with duplicate operators"""
+        # Expression: (3 + 4) * 5 + 2 * 3
+        # Both * operators and both 3 values should be distinct nodes
+        structure = ('+', [
+            ('*', [
+                ('+', [3, 4]),
+                5
+            ]),
+            ('*', [2, 3])
+        ])
+        
+        tree = Tree.from_nested_structure(structure)
+        
+        # Root should be +
+        assert tree.root.data == '+'
+        
+        # Should have 9 nodes: +, *, +, 3, 4, 5, *, 2, 3
+        assert tree.get_node_count() == 9
+        
+        # Root should have 2 children (both *)
+        assert len(tree.root.children) == 2
+        assert tree.root.children[0].data == '*'
+        assert tree.root.children[1].data == '*'
+        
+        # First * should have 2 children (+ and 5)
+        first_multiply = tree.root.children[0]
+        assert len(first_multiply.children) == 2
+        assert first_multiply.children[0].data == '+'
+        assert first_multiply.children[1].data == 5
+        
+        # The nested + should have 2 children (3 and 4)
+        nested_plus = first_multiply.children[0]
+        assert len(nested_plus.children) == 2
+        assert nested_plus.children[0].data == 3
+        assert nested_plus.children[1].data == 4
+        
+        # Second * should have 2 children (2 and 3)
+        second_multiply = tree.root.children[1]
+        assert len(second_multiply.children) == 2
+        assert second_multiply.children[0].data == 2
+        assert second_multiply.children[1].data == 3
+    
+    def test_multilevel_nested_structure(self):
+        """Test creating deep nested structure"""
+        structure = ('Root', [
+            ('A', [
+                ('A1', ['A1a', 'A1b']),
+                'A2'
+            ]),
+            ('B', ['B1'])
+        ])
+        
+        tree = Tree.from_nested_structure(structure)
+        
+        assert tree.root.data == 'Root'
+        # Root, A, A1, A1a, A1b, A2, B, B1 = 8 nodes
+        assert tree.get_node_count() == 8
+        assert tree.get_height() == 3
+    
+    def test_duplicate_values_are_distinct_nodes(self):
+        """Test that duplicate values create distinct nodes"""
+        # Tree with three nodes all having value 'X'
+        structure = ('X', [
+            ('X', ['X'])
+        ])
+        
+        tree = Tree.from_nested_structure(structure)
+        
+        # Should have 3 nodes despite same value
+        assert tree.get_node_count() == 3
+        
+        # All three should have value 'X'
+        assert tree.root.data == 'X'
+        assert tree.root.children[0].data == 'X'
+        assert tree.root.children[0].children[0].data == 'X'
+        
+        # But they should be different node objects
+        assert tree.root is not tree.root.children[0]
+        assert tree.root is not tree.root.children[0].children[0]
+        assert tree.root.children[0] is not tree.root.children[0].children[0]
+    
+    def test_numeric_values_in_nested_structure(self):
+        """Test nested structure with numeric values"""
+        structure = (1, [
+            (2, [4, 5]),
+            (3, [6])
+        ])
+        
+        tree = Tree.from_nested_structure(structure)
+        
+        assert tree.root.data == 1
+        assert tree.get_node_count() == 6
+        assert tree.root.children[0].data == 2
+        assert tree.root.children[1].data == 3
+    
+    def test_empty_children_list(self):
+        """Test node with empty children list"""
+        structure = ('Root', [])
+        tree = Tree.from_nested_structure(structure)
+        
+        assert tree.root.data == 'Root'
+        assert tree.get_node_count() == 1
+        assert len(tree.root.children) == 0
+    
+    def test_mixed_leaf_and_parent_nodes(self):
+        """Test structure with mix of leaf values and parent nodes"""
+        structure = ('Root', [
+            'LeafA',  # Simple value
+            ('ParentB', ['ChildB1', 'ChildB2']),  # Parent with children
+            'LeafC'   # Simple value
+        ])
+        
+        tree = Tree.from_nested_structure(structure)
+        
+        assert tree.get_node_count() == 6
+        assert tree.root.children[0].data == 'LeafA'
+        assert tree.root.children[0].is_leaf()
+        assert tree.root.children[1].data == 'ParentB'
+        assert not tree.root.children[1].is_leaf()
+        assert len(tree.root.children[1].children) == 2
+
+
 class TestGetAdjacencyMatrix:
     def test_get_adjacency_matrix_simple_tree(self):
         """Test getting adjacency matrix from a simple tree"""
