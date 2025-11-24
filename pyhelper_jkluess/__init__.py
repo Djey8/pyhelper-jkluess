@@ -3,7 +3,7 @@ pyhelper-jkluess - A collection of Python data structures
 Educational implementations of fundamental and advanced data structures.
 """
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 __author__ = "Jannis Kluess"
 
 # Import modules to make them easily accessible
