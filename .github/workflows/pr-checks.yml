@@ -1,0 +1,91 @@
+name: Pull Request Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 pytest pytest-cov
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        pip install -e .
+    
+    - name: Lint with flake8
+      run: |
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude=build,dist,.git,__pycache__,.pytest_cache
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --exclude=build,dist,.git,__pycache__,.pytest_cache
+    
+    - name: Run tests with coverage
+      run: |
+        pytest tests/ -v --cov=pyhelper_jkluess --cov-report=term-missing
+    
+    - name: Check if version needs update (for PRs to main)
+      if: github.base_ref == 'main'
+      run: |
+        echo "✅ Version will be automatically updated when merged to main"
+        echo "💡 Use conventional commits to control version bump:"
+        echo "   - fix: patch version (1.0.0 -> 1.0.1)"
+        echo "   - feat: minor version (1.0.0 -> 1.1.0)"
+        echo "   - BREAKING CHANGE: or feat!: major version (1.0.0 -> 2.0.0)"
+  
+  commit-lint:
+    runs-on: ubuntu-latest
+    if: github.base_ref == 'main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Check commit messages
+      run: |
+        echo "Checking commit messages for conventional commit format..."
+        COMMITS=$(git log --pretty=format:"%s" origin/main..HEAD)
+        
+        echo "Commits in this PR:"
+        echo "$COMMITS"
+        echo ""
+        
+        # Check if at least one commit follows conventional commits
+        if echo "$COMMITS" | grep -qiE "^(feat|fix|docs|style|refactor|perf|test|chore|build|ci)(\([^)]*\))?:|BREAKING CHANGE:"; then
+          echo "✅ Conventional commits detected"
+          
+          # Determine version bump type
+          if echo "$COMMITS" | grep -qiE "(BREAKING CHANGE:|^[^:]+!:)"; then
+            echo "📦 This will trigger a MAJOR version bump (X.0.0)"
+          elif echo "$COMMITS" | grep -qiE "^feat(\([^)]*\))?:"; then
+            echo "📦 This will trigger a MINOR version bump (0.X.0)"
+          else
+            echo "📦 This will trigger a PATCH version bump (0.0.X)"
+          fi
+        else
+          echo "⚠️  No conventional commits found"
+          echo "💡 Consider using conventional commit format:"
+          echo "   feat: new feature (minor bump)"
+          echo "   fix: bug fix (patch bump)"
+          echo "   docs: documentation changes (patch bump)"
+          echo "   BREAKING CHANGE: breaking change (major bump)"
+          echo ""
+          echo "Without conventional commits, no release will be created"
+        fi
