@@ -1,5 +1,5 @@
 import pytest
-from Complex.Trees.tree import Tree, TreeNode
+from pyhelper_jkluess.Complex.Trees.tree import Tree, Node as TreeNode
 
 
 class TestTreeNodeCreation:
@@ -19,8 +19,8 @@ class TestTreeNodeCreation:
     def test_node_string_representation(self):
         """Test string representation of node"""
         node = TreeNode("Test")
-        assert str(node) == "TreeNode(Test)"
-        assert "TreeNode" in repr(node)
+        assert str(node) == "Node(Test)"
+        assert "Node" in repr(node)
 
 
 class TestTreeNodeOperations:
@@ -342,6 +342,54 @@ class TestTreeHeight:
         
         # Height should be longest path
         assert tree.get_height() == 3
+
+
+class TestTreeDegree:
+    def test_degree_of_leaf(self):
+        """Test degree of leaf node"""
+        tree = Tree("Root")
+        leaf = tree.add_child(tree.root, "Leaf")
+        
+        assert tree.get_degree(leaf) == 0
+    
+    def test_degree_of_root_with_children(self):
+        """Test degree of root with multiple children"""
+        tree = Tree("Root")
+        tree.add_child(tree.root, "A")
+        tree.add_child(tree.root, "B")
+        tree.add_child(tree.root, "C")
+        
+        assert tree.get_degree(tree.root) == 3
+    
+    def test_degree_of_inner_node(self):
+        """Test degree of inner node"""
+        tree = Tree("Root")
+        child_a = tree.add_child(tree.root, "A")
+        tree.add_child(child_a, "A1")
+        tree.add_child(child_a, "A2")
+        
+        assert tree.get_degree(child_a) == 2
+    
+    def test_degree_of_single_node_tree(self):
+        """Test degree of root in single node tree"""
+        tree = Tree("Root")
+        
+        assert tree.get_degree(tree.root) == 0
+    
+    def test_degree_changes_when_adding_children(self):
+        """Test that degree updates when children are added"""
+        tree = Tree("Root")
+        
+        assert tree.get_degree(tree.root) == 0
+        
+        tree.add_child(tree.root, "A")
+        assert tree.get_degree(tree.root) == 1
+        
+        tree.add_child(tree.root, "B")
+        assert tree.get_degree(tree.root) == 2
+        
+        tree.add_child(tree.root, "C")
+        assert tree.get_degree(tree.root) == 3
 
 
 class TestTreeLevels:
@@ -798,3 +846,420 @@ class TestTreePrintTree:
         assert "Root" in output
         assert "A" in output
         assert "B" in output
+
+
+class TestTreeFromAdjacencyMatrix:
+    def test_create_from_simple_matrix(self):
+        """Test creating tree from simple adjacency matrix"""
+        # Tree: 0 -> 1, 0 -> 2
+        matrix = [
+            [0, 1, 1],
+            [0, 0, 0],
+            [0, 0, 0]
+        ]
+        tree = Tree.from_adjacency_matrix(matrix)
+        
+        assert tree.root.data == 0
+        assert tree.get_node_count() == 3
+        assert tree.get_edge_count() == 2
+        assert len(tree.root.children) == 2
+        assert tree.verify_tree_property()
+    
+    def test_create_from_matrix_with_labels(self):
+        """Test creating tree from matrix with custom labels"""
+        matrix = [
+            [0, 1, 1],
+            [0, 0, 0],
+            [0, 0, 0]
+        ]
+        labels = ['A', 'B', 'C']
+        tree = Tree.from_adjacency_matrix(matrix, labels)
+        
+        assert tree.root.data == 'A'
+        assert tree.get_node_count() == 3
+        children_data = [child.data for child in tree.root.children]
+        assert 'B' in children_data
+        assert 'C' in children_data
+    
+    def test_create_from_complex_matrix(self):
+        """Test creating tree from complex adjacency matrix"""
+        # Tree: 0 -> 1, 0 -> 2, 1 -> 3, 1 -> 4
+        matrix = [
+            [0, 1, 1, 0, 0],
+            [0, 0, 0, 1, 1],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0]
+        ]
+        tree = Tree.from_adjacency_matrix(matrix)
+        
+        assert tree.get_node_count() == 5
+        assert tree.get_edge_count() == 4
+        assert tree.get_height() == 2
+        assert tree.verify_tree_property()
+    
+    def test_empty_matrix(self):
+        """Test creating tree from empty matrix"""
+        matrix = []
+        tree = Tree.from_adjacency_matrix(matrix)
+        assert tree.is_empty()
+    
+    def test_non_square_matrix_raises_error(self):
+        """Test that non-square matrix raises ValueError"""
+        matrix = [
+            [0, 1],
+            [0, 0, 0]
+        ]
+        with pytest.raises(ValueError, match="must be square"):
+            Tree.from_adjacency_matrix(matrix)
+    
+    def test_no_root_raises_error(self):
+        """Test that matrix with no root raises ValueError"""
+        # Circular: 0 -> 1, 1 -> 0
+        matrix = [
+            [0, 1],
+            [1, 0]
+        ]
+        with pytest.raises(ValueError, match="No root found"):
+            Tree.from_adjacency_matrix(matrix)
+    
+    def test_multiple_roots_raises_error(self):
+        """Test that matrix with multiple roots raises ValueError"""
+        # Two disconnected nodes, both could be roots
+        matrix = [
+            [0, 0],
+            [0, 0]
+        ]
+        with pytest.raises(ValueError, match="Multiple roots"):
+            Tree.from_adjacency_matrix(matrix)
+    
+    def test_multiple_parents_raises_error(self):
+        """Test that node with multiple parents raises ValueError"""
+        # Both 0 and 1 are parents of 2
+        matrix = [
+            [0, 0, 1],
+            [0, 0, 1],
+            [0, 0, 0]
+        ]
+        # This creates multiple roots (0 and 1 both have no parents)
+        with pytest.raises(ValueError, match="Multiple roots"):
+            Tree.from_adjacency_matrix(matrix)
+    
+    def test_disconnected_graph_raises_error(self):
+        """Test that disconnected graph raises ValueError"""
+        # 0 -> 1, but 2 is disconnected (has no parent)
+        matrix = [
+            [0, 1, 0],
+            [0, 0, 0],
+            [0, 0, 0]
+        ]
+        # This creates multiple roots (0 and 2 both have no parents)
+        with pytest.raises(ValueError, match="Multiple roots"):
+            Tree.from_adjacency_matrix(matrix)
+    
+    def test_wrong_label_count_raises_error(self):
+        """Test that wrong number of labels raises ValueError"""
+        matrix = [
+            [0, 1],
+            [0, 0]
+        ]
+        labels = ['A']  # Only 1 label for 2 nodes
+        with pytest.raises(ValueError, match="node_labels length"):
+            Tree.from_adjacency_matrix(matrix, labels)
+
+
+class TestTreeFromAdjacencyList:
+    def test_create_from_simple_list(self):
+        """Test creating tree from simple adjacency list"""
+        adj_list = {
+            'A': ['B', 'C'],
+            'B': [],
+            'C': []
+        }
+        tree = Tree.from_adjacency_list(adj_list, 'A')
+        
+        assert tree.root.data == 'A'
+        assert tree.get_node_count() == 3
+        assert tree.get_edge_count() == 2
+        assert len(tree.root.children) == 2
+    
+    def test_create_from_complex_list(self):
+        """Test creating tree from complex adjacency list"""
+        adj_list = {
+            'Root': ['A', 'B'],
+            'A': ['A1', 'A2'],
+            'B': ['B1'],
+            'A1': [],
+            'A2': [],
+            'B1': []
+        }
+        tree = Tree.from_adjacency_list(adj_list, 'Root')
+        
+        assert tree.root.data == 'Root'
+        assert tree.get_node_count() == 6
+        assert tree.get_edge_count() == 5
+        assert tree.get_height() == 2
+        assert tree.verify_tree_property()
+    
+    def test_create_with_numeric_nodes(self):
+        """Test creating tree with numeric node values"""
+        adj_list = {
+            1: [2, 3],
+            2: [4],
+            3: [],
+            4: []
+        }
+        tree = Tree.from_adjacency_list(adj_list, 1)
+        
+        assert tree.root.data == 1
+        assert tree.get_node_count() == 4
+    
+    def test_missing_children_in_list(self):
+        """Test adjacency list where leaf nodes are omitted"""
+        adj_list = {
+            'Root': ['A', 'B'],
+            'A': ['A1']
+        }
+        tree = Tree.from_adjacency_list(adj_list, 'Root')
+        
+        assert tree.get_node_count() == 4
+        # B and A1 should be leaves even though not explicitly in adj_list
+    
+    def test_root_not_in_list_raises_error(self):
+        """Test that missing root raises ValueError"""
+        adj_list = {
+            'A': ['B'],
+            'B': []
+        }
+        with pytest.raises(ValueError, match="Root.*not found"):
+            Tree.from_adjacency_list(adj_list, 'C')
+    
+    def test_cycle_raises_error(self):
+        """Test that cycle in adjacency list raises ValueError"""
+        adj_list = {
+            'A': ['B'],
+            'B': ['A']  # Creates cycle
+        }
+        with pytest.raises(ValueError, match="Cycle detected"):
+            Tree.from_adjacency_list(adj_list, 'A')
+    
+    def test_duplicate_node_raises_error(self):
+        """Test that duplicate node (appearing as child multiple times) raises error"""
+        adj_list = {
+            'Root': ['A', 'B'],
+            'A': ['C'],
+            'B': ['C']  # C appears twice (under A and B)
+        }
+        with pytest.raises(ValueError, match="Cycle detected"):
+            Tree.from_adjacency_list(adj_list, 'Root')
+
+
+class TestTreeCreationComparison:
+    def test_same_tree_different_methods(self):
+        """Test that all creation methods produce equivalent trees"""
+        # Create tree manually
+        tree1 = Tree('Root')
+        a = tree1.add_child(tree1.root, 'A')
+        b = tree1.add_child(tree1.root, 'B')
+        tree1.add_child(a, 'A1')
+        tree1.add_child(a, 'A2')
+        
+        # Create from adjacency matrix
+        matrix = [
+            [0, 1, 1, 0, 0],  # Root -> A, B
+            [0, 0, 0, 1, 1],  # A -> A1, A2
+            [0, 0, 0, 0, 0],  # B
+            [0, 0, 0, 0, 0],  # A1
+            [0, 0, 0, 0, 0]   # A2
+        ]
+        labels = ['Root', 'A', 'B', 'A1', 'A2']
+        tree2 = Tree.from_adjacency_matrix(matrix, labels)
+        
+        # Create from adjacency list
+        adj_list = {
+            'Root': ['A', 'B'],
+            'A': ['A1', 'A2'],
+            'B': [],
+            'A1': [],
+            'A2': []
+        }
+        tree3 = Tree.from_adjacency_list(adj_list, 'Root')
+        
+        # All trees should have same structure
+        assert tree1.get_node_count() == tree2.get_node_count() == tree3.get_node_count()
+        assert tree1.get_edge_count() == tree2.get_edge_count() == tree3.get_edge_count()
+        assert tree1.get_height() == tree2.get_height() == tree3.get_height()
+        
+        # Traversals should produce same node labels
+        assert tree1.traverse_levelorder() == tree2.traverse_levelorder() == tree3.traverse_levelorder()
+
+
+class TestGetAdjacencyMatrix:
+    def test_get_adjacency_matrix_simple_tree(self):
+        """Test getting adjacency matrix from a simple tree"""
+        tree = Tree('Root')
+        tree.add_child(tree.root, 'A')
+        tree.add_child(tree.root, 'B')
+        
+        matrix = tree.get_adjacency_matrix()
+        
+        # Should be 3x3 matrix
+        assert len(matrix) == 3
+        assert all(len(row) == 3 for row in matrix)
+        
+        # Root (0) should have children A (1) and B (2)
+        assert matrix[0][1] == 1  # Root -> A
+        assert matrix[0][2] == 1  # Root -> B
+        assert matrix[1][0] == 0  # A does not point to Root
+        assert matrix[2][0] == 0  # B does not point to Root
+    
+    def test_get_adjacency_matrix_empty_tree(self):
+        """Test getting adjacency matrix from empty tree"""
+        tree = Tree()
+        matrix = tree.get_adjacency_matrix()
+        assert matrix == []
+    
+    def test_get_adjacency_matrix_single_node(self):
+        """Test getting adjacency matrix from single node tree"""
+        tree = Tree('Root')
+        matrix = tree.get_adjacency_matrix()
+        
+        assert len(matrix) == 1
+        assert matrix[0] == [0]
+    
+    def test_get_adjacency_matrix_multilevel_tree(self):
+        """Test getting adjacency matrix from multi-level tree"""
+        tree = Tree('Root')
+        a = tree.add_child(tree.root, 'A')
+        b = tree.add_child(tree.root, 'B')
+        a1 = tree.add_child(a, 'A1')
+        a2 = tree.add_child(a, 'A2')
+        
+        matrix = tree.get_adjacency_matrix()
+        
+        # 5 nodes total
+        assert len(matrix) == 5
+        
+        # Check parent-child relationships exist
+        # Root should have 2 children
+        assert sum(matrix[0]) == 2
+        # A should have 2 children
+        # Find A's index (should be 1 in BFS order)
+        assert sum(matrix[1]) == 2
+        # B should have 0 children
+        assert sum(matrix[2]) == 0
+    
+    def test_adjacency_matrix_round_trip(self):
+        """Test creating tree from matrix and exporting it back"""
+        original_matrix = [
+            [0, 1, 1, 0],
+            [0, 0, 0, 1],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0]
+        ]
+        labels = ['A', 'B', 'C', 'D']
+        
+        tree = Tree.from_adjacency_matrix(original_matrix, labels)
+        exported_matrix = tree.get_adjacency_matrix()
+        
+        # Should match original
+        assert original_matrix == exported_matrix
+
+
+class TestGetAdjacencyList:
+    def test_get_adjacency_list_simple_tree(self):
+        """Test getting adjacency list from a simple tree"""
+        tree = Tree('Root')
+        tree.add_child(tree.root, 'A')
+        tree.add_child(tree.root, 'B')
+        
+        adj_list = tree.get_adjacency_list()
+        
+        # Should have 3 entries
+        assert len(adj_list) == 3
+        
+        # Check structure
+        assert 'Root' in adj_list
+        assert 'A' in adj_list
+        assert 'B' in adj_list
+        
+        # Check children
+        assert 'A' in adj_list['Root']
+        assert 'B' in adj_list['Root']
+        assert len(adj_list['Root']) == 2
+        assert adj_list['A'] == []
+        assert adj_list['B'] == []
+    
+    def test_get_adjacency_list_empty_tree(self):
+        """Test getting adjacency list from empty tree"""
+        tree = Tree()
+        adj_list = tree.get_adjacency_list()
+        assert adj_list == {}
+    
+    def test_get_adjacency_list_single_node(self):
+        """Test getting adjacency list from single node tree"""
+        tree = Tree('Root')
+        adj_list = tree.get_adjacency_list()
+        
+        assert len(adj_list) == 1
+        assert 'Root' in adj_list
+        assert adj_list['Root'] == []
+    
+    def test_get_adjacency_list_multilevel_tree(self):
+        """Test getting adjacency list from multi-level tree"""
+        tree = Tree('Root')
+        a = tree.add_child(tree.root, 'A')
+        b = tree.add_child(tree.root, 'B')
+        a1 = tree.add_child(a, 'A1')
+        a2 = tree.add_child(a, 'A2')
+        
+        adj_list = tree.get_adjacency_list()
+        
+        # 5 nodes total
+        assert len(adj_list) == 5
+        
+        # Check structure
+        assert adj_list['Root'] == ['A', 'B']
+        assert adj_list['A'] == ['A1', 'A2']
+        assert adj_list['B'] == []
+        assert adj_list['A1'] == []
+        assert adj_list['A2'] == []
+    
+    def test_adjacency_list_preserves_child_order(self):
+        """Test that adjacency list preserves child order"""
+        tree = Tree('Root')
+        tree.add_child(tree.root, 'First')
+        tree.add_child(tree.root, 'Second')
+        tree.add_child(tree.root, 'Third')
+        
+        adj_list = tree.get_adjacency_list()
+        
+        assert adj_list['Root'] == ['First', 'Second', 'Third']
+    
+    def test_adjacency_list_round_trip(self):
+        """Test creating tree from adjacency list and exporting it back"""
+        original_list = {
+            'Root': ['A', 'B'],
+            'A': ['A1', 'A2'],
+            'B': [],
+            'A1': [],
+            'A2': []
+        }
+        
+        tree = Tree.from_adjacency_list(original_list, 'Root')
+        exported_list = tree.get_adjacency_list()
+        
+        # Should match original
+        assert original_list == exported_list
+    
+    def test_get_adjacency_list_with_numeric_data(self):
+        """Test adjacency list with numeric node data"""
+        tree = Tree(0)
+        tree.add_child(tree.root, 1)
+        tree.add_child(tree.root, 2)
+        
+        adj_list = tree.get_adjacency_list()
+        
+        assert adj_list[0] == [1, 2]
+        assert adj_list[1] == []
+        assert adj_list[2] == []

@@ -1,13 +1,23 @@
 # Skip Lists
 
-Probabilistic data structures for fast sorted operations (O(log n)).
+**Probabilistic data structures** that achieve O(log n) performance without complex balancing algorithms.
+
+## Core Concept
+
+Skip lists are **sorted linked lists with express lanes**:
+- Multiple levels of increasingly sparse lists
+- Higher levels skip over many elements (like express highways)
+- Probabilistic balancing eliminates need for rotations/rebalancing
+- Simple to implement compared to balanced trees (AVL, Red-Black)
+
+**Trade-off**: Consistent O(log n) average performance with simple code vs guaranteed O(log n) worst-case of balanced trees
 
 ## SkipList - Key-Value Store
 
 Dictionary with O(log n) operations. Keys stay sorted.
 
 ```python
-from Complex.SkipLists.skiplist import SkipList
+from pyhelper_jkluess.Complex.SkipLists.skiplist import SkipList
 
 sl = SkipList(max_level=4)
 
@@ -35,7 +45,7 @@ sl.delete(20)
 Stores sorted values with probabilistic balancing.
 
 ```python
-from Complex.SkipLists.probabilisticskiplist import ProbabilisticSkipList
+from pyhelper_jkluess.Complex.SkipLists.probabilisticskiplist import ProbabilisticSkipList
 
 psl = ProbabilisticSkipList(max_height=10)
 

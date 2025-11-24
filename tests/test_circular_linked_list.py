@@ -1,5 +1,5 @@
 import pytest
-from Basic.Lists.circular_linked_list import CircularLinkedList, Node
+from pyhelper_jkluess.Basic.Lists.circular_linked_list import CircularLinkedList, Node
 
 
 class TestCircularNode:

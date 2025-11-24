@@ -1,5 +1,5 @@
 import pytest
-from Basic.Lists.linked_list import LinkedList, Node
+from pyhelper_jkluess.Basic.Lists.linked_list import LinkedList, Node
 
 
 class TestNode:

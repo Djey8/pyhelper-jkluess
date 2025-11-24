@@ -31,7 +31,7 @@ A **Tree** is a connected, acyclic undirected graph with one distinguished node 
 ## Quick Start
 
 ```python
-from Complex.Trees.tree import Tree
+from pyhelper_jkluess.Complex.Trees.tree import Tree
 
 # Create tree with root
 tree = Tree("Root")
@@ -74,6 +74,7 @@ tree.get_node_count()                 # Total nodes (n)
 tree.get_edge_count()                 # Total edges (m)
 tree.verify_tree_property()           # Check m = n - 1
 tree.get_depth(node)                  # Depth of node
+tree.get_degree(node)                 # Number of children of node
 tree.get_height()                     # Height of tree
 
 # Navigation and levels
@@ -108,22 +109,114 @@ tree.get_statistics()                 # Dict with all metrics
 #          inner_node_count, satisfies_tree_property, 
 #          is_connected, is_acyclic
 
+# Import/Export Adjacency Representations
+matrix = tree.get_adjacency_matrix()  # Export to matrix
+adj_list = tree.get_adjacency_list()  # Export to adjacency list
+tree2 = Tree.from_adjacency_matrix(matrix, labels)  # Import from matrix
+tree3 = Tree.from_adjacency_list(adj_list, root)    # Import from list
+
 # Visualization
 tree.print_tree()                     # ASCII tree structure
 tree.visualize(title="My Tree", root_position="top")
 # root_position: "top", "bottom", "left", "right"
 ```
 
-## TreeNode Class
+## Creating Trees from Adjacency Representations
+
+### From Adjacency Matrix
+
+An adjacency matrix is a 2D array where `matrix[i][j] = 1` if node `i` is the parent of node `j`.
+
+```python
+from pyhelper_jkluess.Complex.Trees.tree import Tree
+
+# Define adjacency matrix
+# Structure: 0 -> 1, 0 -> 2, 1 -> 3, 1 -> 4
+matrix = [
+    [0, 1, 1, 0, 0],  # Node 0 (root) → nodes 1, 2
+    [0, 0, 0, 1, 1],  # Node 1 → nodes 3, 4
+    [0, 0, 0, 0, 0],  # Node 2 (leaf)
+    [0, 0, 0, 0, 0],  # Node 3 (leaf)
+    [0, 0, 0, 0, 0]   # Node 4 (leaf)
+]
+
+# Optional: provide custom labels
+labels = ['Root', 'A', 'B', 'A1', 'A2']
+tree = Tree.from_adjacency_matrix(matrix, labels)
+
+tree.print_tree()
+# └── Root
+#     ├── A
+#     │   ├── A1
+#     │   └── A2
+#     └── B
+
+# Export back to matrix
+exported_matrix = tree.get_adjacency_matrix()
+print(exported_matrix)  # Same as original matrix
+```
+
+### From Adjacency List
+
+An adjacency list is a dictionary mapping each node to its list of children.
+
+```python
+# Define adjacency list
+adj_list = {
+    'Root': ['A', 'B', 'C'],
+    'A': ['A1', 'A2'],
+    'B': ['B1'],
+    'C': [],
+    'A1': [],
+    'A2': [],
+    'B1': []
+}
+
+tree = Tree.from_adjacency_list(adj_list, root='Root')
+
+tree.print_tree()
+# └── Root
+#     ├── A
+#     │   ├── A1
+#     │   └── A2
+#     ├── B
+#     │   └── B1
+#     └── C
+
+# Export back to adjacency list
+exported_list = tree.get_adjacency_list()
+print(exported_list)  # Same as original
+```
+
+### Round-trip Conversion
+
+```python
+# Create tree normally
+tree = Tree("X")
+tree.add_child(tree.root, "Y")
+tree.add_child(tree.root, "Z")
+
+# Export to matrix
+matrix = tree.get_adjacency_matrix()
+
+# Import back
+tree2 = Tree.from_adjacency_matrix(matrix, ['X', 'Y', 'Z'])
+
+# Trees are structurally identical
+assert tree.get_node_count() == tree2.get_node_count()
+assert tree.traverse_levelorder() == tree2.traverse_levelorder()
+```
+
+## Node Class
 
 Individual tree nodes can be manipulated directly:
 
 ```python
-from Complex.Trees.tree import TreeNode
+from pyhelper_jkluess.Complex.Trees.tree import Node
 
 # Node creation and manipulation
-node = TreeNode("MyData")
-child = TreeNode("ChildData")
+node = Node("MyData")
+child = Node("ChildData")
 node.add_child(child)
 node.remove_child(child)
 
@@ -143,7 +236,7 @@ node.children                     # List of children
 ### File System Tree
 
 ```python
-from Complex.Trees.tree import Tree
+from pyhelper_jkluess.Complex.Trees.tree import Tree
 
 fs = Tree("/")
 home = fs.add_child(fs.root, "home")
@@ -163,7 +256,7 @@ print(f"Files: {stats['leaf_count']}, Depth: {stats['height']}")
 ### Organization Chart
 
 ```python
-from Complex.Trees.tree import Tree
+from pyhelper_jkluess.Complex.Trees.tree import Tree
 
 org = Tree("CEO")
 cto = org.add_child(org.root, "CTO")
@@ -183,7 +276,7 @@ print(f"ICs: {[n.data for n in org.get_leaves()]}")
 
 ## All Available Operations
 
-### **Tree Class Operations (32 total)**
+### **Tree Class Operations (38 total)**
 
 **Creation & Basic (4):**
 - `Tree(root_data=None)` - Create tree
@@ -191,9 +284,16 @@ print(f"ICs: {[n.data for n in org.get_leaves()]}")
 - `set_root(data)` - Set/change root
 - `add_child(parent, child_data)` - Add child
 
-**Node Counting & Properties (3):**
+**Import/Export (4):**
+- `from_adjacency_matrix(matrix, labels)` - Create from matrix (classmethod)
+- `from_adjacency_list(adj_list, root)` - Create from list (classmethod)
+- `get_adjacency_matrix()` - Export to matrix
+- `get_adjacency_list()` - Export to adjacency list
+
+**Node Counting & Properties (4):**
 - `get_node_count()` - Total nodes (n)
 - `get_edge_count()` - Total edges (m)
+- `get_degree(node)` - Number of children
 - `verify_tree_property()` - Check m = n - 1
 
 **Depth & Height (2):**
@@ -231,10 +331,10 @@ print(f"ICs: {[n.data for n in org.get_leaves()]}")
 - `visualize()` - Matplotlib graph
 - `__str__() / __repr__()` - String representation
 
-### **TreeNode Class Operations (8 total)**
+### **Node Class Operations (8 total)**
 
 **Creation & Manipulation (3):**
-- `TreeNode(data)` - Create node
+- `Node(data)` - Create node
 - `add_child(child)` - Add child
 - `remove_child(child)` - Remove child
 

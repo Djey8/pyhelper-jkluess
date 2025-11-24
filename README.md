@@ -1,14 +1,22 @@
 # PyHelper
 
-Python implementations of fundamental data structures for learning and practical use.
+A comprehensive library of data structures designed for **learning, teaching, and practical use** in computer science education and software development.
 
 ## What is this?
 
-PyHelper provides clean, well-tested implementations of common data structures:
-- **Lists**: Linked, Double, Circular
-- **Graphs**: Unified Graph class + specialized types (Undirected, Directed, Weighted) with visualization & graph theory operations
-- **Trees**: Hierarchical tree structures with comprehensive operations and traversals
-- **Skip Lists**: Deterministic and Probabilistic
+PyHelper provides **production-ready, well-tested implementations** of fundamental and advanced data structures, organized by complexity:
+
+### **Basic Structures** - Linear Data Organization
+- **Linked Lists** (3 types): Forward-only, bidirectional, and circular traversal patterns
+  - Use when: Dynamic sizing, frequent insertions/deletions, memory efficiency
+
+### **Complex Structures** - Non-Linear Data Organization
+- **Graphs** (Unified + 4 specialized types): Network relationships and connectivity
+  - Use when: Modeling relationships, pathfinding, network analysis, dependencies
+- **Trees**: Hierarchical parent-child structures with guaranteed properties (m = n-1)
+  - Use when: File systems, org charts, decision trees, taxonomies
+- **Skip Lists** (2 types): Probabilistic balanced structures for fast sorted operations
+  - Use when: Sorted data with O(log n) operations without tree balancing complexity
 
 ## Prerequisites
 
@@ -17,6 +25,25 @@ pip install networkx matplotlib pytest
 ```
 
 ## Installation
+
+### Install from PyPI (Recommended)
+
+```bash
+pip install pyhelper-jkluess
+```
+
+After installation, import as:
+```python
+import pyhelper_jkluess
+# or
+from pyhelper_jkluess.Complex.Trees.tree import Tree
+```
+
+### Install from GitHub
+
+```bash
+pip install git+https://github.com/Djey8/pyhelper-jkluess.git
+```
 
 ### Install from local directory (for development)
 
@@ -30,23 +57,11 @@ pip install -e .
 pip install .
 ```
 
-### Install from GitHub
-
-```bash
-pip install git+https://github.com/Djey8/PyHelper.git
-```
-
-### Install from PyPI
-
-```bash
-pip install pyhelper-jkluess
-```
-
 ## Quick Start
 
 ### Linked List
 ```python
-from Basic.Lists.linked_list import LinkedList
+from pyhelper_jkluess.Basic.Lists.linked_list import LinkedList
 
 ll = LinkedList()
 ll.append(10)
@@ -56,7 +71,7 @@ ll.print_list()  # 10 -> 20 -> None
 
 ### Graph (Unified Class - Recommended)
 ```python
-from Complex.Graphs.graph import Graph
+from pyhelper_jkluess.Complex.Graphs.graph import Graph
 
 # Create any graph type with parameters
 g = Graph(directed=False, weighted=True)
@@ -78,7 +93,7 @@ g.visualize()  # Opens matplotlib window
 
 ### Tree
 ```python
-from Complex.Trees.tree import Tree
+from pyhelper_jkluess.Complex.Trees.tree import Tree
 
 # Create tree with root
 tree = Tree("Root")
@@ -103,7 +118,7 @@ print(f"Nodes: {stats['node_count']}, Height: {stats['height']}")
 
 ### Skip List
 ```python
-from Complex.SkipLists.probabilisticskiplist import ProbabilisticSkipList
+from pyhelper_jkluess.Complex.SkipLists.probabilisticskiplist import ProbabilisticSkipList
 
 sl = ProbabilisticSkipList()
 sl.add(10)
@@ -111,35 +126,49 @@ sl.add(20)
 print(sl.find(10))  # 10
 ```
 
-## Structure
+## Project Structure
 
 ```
-PyHelper/
-├── Grundlegende_Datenstrukuren/  # Basic data structures (Lists)
-├── Complex/Graphs/                # Graph data structures
-├── Complex/Trees/                 # Tree data structures
-└── Complex/SkipLists/             # Skip list implementations
+pyhelper-jkluess/          # Repository root
+├── pyhelper_jkluess/     # Main package (import as: import pyhelper_jkluess)
+│   ├── Basic/            # Linear structures: Lists (Linked, Double, Circular)
+│   │   └── Lists/        # Production-ready list implementations
+│   └── Complex/          # Non-linear & advanced structures
+│       ├── Graphs/       # Network structures (Unified Graph + 4 types)
+│       ├── Trees/        # Hierarchical structures (Tree, Node)
+│       └── SkipLists/    # Probabilistic structures (2 types)
+└── tests/                # 564 comprehensive tests
 ```
 
-## Documentation
+## Documentation by Data Structure Category
 
-- [Basic Lists](Grundlegende_Datenstrukuren/README.md) - LinkedList, DoubleLinkedList, CircularLinkedList
-- [Graphs](Complex/Graphs/README.md) - **Graph** (unified), UndirectedGraph, DirectedGraph, WeightedUndirectedGraph, WeightedDirectedGraph
-  - Unified `Graph` class adapts to all 4 types based on initialization
-  - Shortest path algorithms: BFS (unweighted) and Dijkstra (weighted)
-  - Includes: Paths, cycles, connectivity, adjacency matrices/lists
-  - 64% code reduction through inheritance architecture
-- [Trees](Complex/Trees/README.md) - Tree, TreeNode
-  - Hierarchical tree structures with parent-child relationships
-  - Properties: m = n - 1, connected, acyclic, unique paths
-  - Traversals: preorder, postorder, level-order
-  - Operations: depth, height, levels, ancestors, descendants, path finding
-- [Skip Lists](Complex/SkipLists/README.md) - SkipList, ProbabilisticSkipList
+### Linear Structures
+- **[Basic Lists](Basic/README.md)** - LinkedList, DoubleLinkedList, CircularLinkedList
+  - Forward-only, bidirectional, and circular traversal patterns
+  - When to use: Dynamic arrays, LRU caches, round-robin scheduling
+
+### Non-Linear Structures
+- **[Graphs](Complex/Graphs/README.md)** - Unified Graph + 4 specialized types
+  - **Unified Architecture**: Single `Graph` class adapts to all 4 types (64% code reduction)
+  - **Graph Theory**: Paths, cycles, connectivity, shortest paths (BFS/Dijkstra)
+  - **Representations**: Adjacency matrices and lists (import/export)
+  - When to use: Network modeling, dependencies, social networks, routing
+
+- **[Trees](Complex/Trees/README.md)** - Tree with 39 operations
+  - **Properties**: m = n-1 edges, connected, acyclic, unique paths between nodes
+  - **Traversals**: Preorder, inorder, postorder, level-order
+  - **Features**: Depth/height, ancestors/descendants, adjacency matrix/list support
+  - When to use: Hierarchies, file systems, decision trees, taxonomies
+
+- **[Skip Lists](Complex/SkipLists/README.md)** - Deterministic & Probabilistic
+  - **Performance**: O(log n) operations with probabilistic balancing
+  - **Types**: Key-value store (SkipList) and sorted set (ProbabilisticSkipList)
+  - When to use: Sorted data without complex tree balancing
 
 ## Testing
 
 ```bash
-pytest tests/ -v  # 529 tests
+pytest tests/ -v  # 564 comprehensive tests
 ```
 
 ## License

@@ -1,5 +1,5 @@
 import pytest
-from Complex.Graphs.weighted_undirected_graph import WeightedUndirectedGraph
+from pyhelper_jkluess.Complex.Graphs.weighted_undirected_graph import WeightedUndirectedGraph
 
 
 # Note: Dijkstra pathfinding is not yet implemented in WeightedUndirectedGraph

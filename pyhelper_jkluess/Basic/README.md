@@ -1,6 +1,13 @@
 # Basic Data Structures
 
-Fundamental linked list implementations.
+**Linear data structures** - the foundation of computer science data organization.
+
+## Core Concept: Linked Lists
+
+Unlike arrays, linked lists use **nodes with pointers** for dynamic, memory-efficient storage:
+- No pre-allocated size needed (grow/shrink dynamically)
+- Efficient insertions/deletions (no shifting elements)
+- Trade-off: O(n) access time vs O(1) for arrays
 
 ## Available Modules
 
@@ -17,7 +24,7 @@ See [Lists README](Lists/README.md) for usage examples.
 ## Quick Example
 
 ```python
-from Basic.Lists.linked_list import LinkedList
+from pyhelper_jkluess.Basic.Lists.linked_list import LinkedList
 
 ll = LinkedList()
 ll.append(10)

@@ -1,5 +1,5 @@
 import pytest
-from Complex.Graphs.undirected_graph import UndirectedGraph
+from pyhelper_jkluess.Complex.Graphs.undirected_graph import UndirectedGraph
 
 
 class TestUndirectedGraphCreation:

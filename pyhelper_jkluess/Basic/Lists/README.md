@@ -1,13 +1,22 @@
 # Linked Lists
 
-Three linked list implementations for different use cases.
+**Node-based linear data structures** with three traversal patterns for different use cases.
+
+## Core Concept
+
+Linked lists store data in **nodes** connected by **pointers/references**:
+- **Dynamic sizing**: No fixed capacity, grow/shrink as needed
+- **Efficient insertions/deletions**: O(1) when you have the node reference
+- **Trade-off**: O(n) access time (must traverse) vs O(1) array indexing
+
+**Choose linked lists over arrays when**: Memory is limited, size changes frequently, or insertions/deletions are common.
 
 ## LinkedList - Single Direction
 
 Basic linked list with forward-only traversal.
 
 ```python
-from Basic.Lists.linked_list import LinkedList
+from pyhelper_jkluess.Basic.Lists.linked_list import LinkedList
 
 ll = LinkedList()
 ll.append(10)
@@ -26,7 +35,7 @@ ll.print_list()  # 10 -> 30 -> None
 Links forward and backward between nodes.
 
 ```python
-from Basic.Lists.double_linked_list import DoubleLinkedList
+from pyhelper_jkluess.Basic.Lists.double_linked_list import DoubleLinkedList
 
 dll = DoubleLinkedList()
 dll.append(1)
@@ -47,7 +56,7 @@ dll.print_list()            # 1 <-> 3 <-> None
 Last node points back to first node.
 
 ```python
-from Basic.Lists.circular_linked_list import CircularLinkedList
+from pyhelper_jkluess.Basic.Lists.circular_linked_list import CircularLinkedList
 
 cll = CircularLinkedList()
 cll.append(1)

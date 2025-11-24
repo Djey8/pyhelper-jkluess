@@ -1,5 +1,5 @@
 import pytest
-from Complex.SkipLists.probabilisticskiplist import ProbabilisticSkipList
+from pyhelper_jkluess.Complex.SkipLists.probabilisticskiplist import ProbabilisticSkipList
 
 
 class TestProbabilisticSkipListCreation:

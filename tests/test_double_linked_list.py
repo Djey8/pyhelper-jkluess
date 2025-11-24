@@ -1,5 +1,5 @@
 import pytest
-from Basic.Lists.double_linked_list import DoubleLinkedList, Node
+from pyhelper_jkluess.Basic.Lists.double_linked_list import DoubleLinkedList, Node
 
 
 class TestDoubleNode:
