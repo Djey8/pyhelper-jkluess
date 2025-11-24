@@ -134,6 +134,10 @@ g.is_strongly_connected()         # Directed: is strongly connected
 g.get_connected_components()      # Undirected: connected components
 g.get_strongly_connected_components()  # Directed: strongly connected components
 
+# Tree properties (all graph types)
+g.is_tree()                       # Check if graph is a tree
+g.get_edge_count()                # Count edges (undirected counts each once)
+
 # Matrix and list operations (all graph types)
 g.get_adjacency_matrix()          # Get adjacency matrix
 g.get_adjacency_list()            # Get adjacency list (for creating new graphs)
@@ -269,7 +273,7 @@ All graph implementations support fundamental graph theory operations.
 - v₀ = v (start vertex / Anfangsknoten)
 - vₖ = v' (end vertex / Endknoten)
 - Edges exist between consecutive vertices
-- k is the length of the path (Länge des Wegs)
+- k is the length of the path
 
 A path is **simple** if all vertices are pairwise distinct. Vertex v' is **reachable** from v if a path exists from v to v'.
 
@@ -344,12 +348,12 @@ print(g.is_acyclic())  # True/False
 ### Connectivity (Zusammenhang)
 
 **Undirected Graphs:**
-- **Connected** (zusammenhängend): Every vertex is reachable from every other vertex
+- **Connected**: Every vertex is reachable from every other vertex
 - **Connected component** (Zusammenhangskomponente): A maximal connected subgraph
 - Equivalence classes with respect to "reachable from" relation
 
 **Directed Graphs:**
-- **Strongly connected** (stark zusammenhängend): Every vertex is reachable from every other vertex following directed edges
+- **Strongly connected**: Every vertex is reachable from every other vertex following directed edges
 - **Strongly connected component**: A maximal subgraph where all vertices are mutually reachable
 - Equivalence classes with respect to "mutually reachable" relation
 
@@ -365,6 +369,46 @@ print(g.is_strongly_connected())  # True if all mutually reachable
 
 components = g.get_strongly_connected_components()
 print(components)  # [{'A', 'B'}, {'C', 'D', 'E'}]
+```
+
+### Tree Detection
+
+**Theory:** A graph G with m edges and n nodes is a tree if:
+
+**Undirected Graph:** ONE of the following conditions:
+1. G is connected AND m = n - 1
+2. G has no cycles AND m = n - 1  
+3. There is exactly one path between every pair of nodes
+
+**Directed Graph:** Must satisfy:
+- The underlying undirected graph is a tree with a root
+- There is exactly one path from the root to every other node
+- Exactly one node has in-degree 0 (the root)
+- All other nodes have in-degree 1
+
+```python
+# Check if undirected graph is a tree
+g = Graph(directed=False)
+g.add_edge('A', 'B')
+g.add_edge('B', 'C')
+g.add_edge('C', 'D')
+
+print(g.is_tree())  # True
+print(f"Edges: {g.get_edge_count()}, Vertices: {len(g.get_vertices())}")
+# Edges: 3, Vertices: 4  (satisfies m = n - 1)
+
+# Adding an edge creates a cycle - no longer a tree
+g.add_edge('D', 'A')
+print(g.is_tree())  # False (has cycle)
+
+# Check if directed graph is a tree
+g_dir = Graph(directed=True)
+g_dir.add_edge('Root', 'A')
+g_dir.add_edge('Root', 'B')
+g_dir.add_edge('A', 'C')
+g_dir.add_edge('A', 'D')
+
+print(g_dir.is_tree())  # True (rooted tree with unique paths from root)
 ```
 
 ### Adjacency Matrix (Adjazenzmatrix)

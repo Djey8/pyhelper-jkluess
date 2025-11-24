@@ -1137,6 +1137,127 @@ class Graph:
         
         return len(visited) == len(self._adjacency_list)
     
+    def is_tree(self) -> bool:
+        """
+        Check if the graph is a tree.
+        
+        An undirected graph G with m edges and n nodes is a tree if ONE of:
+        1. G is connected and m = n - 1
+        2. G has no cycles and m = n - 1
+        3. There is exactly one path between every pair of nodes
+        
+        A directed graph B with m edges and n nodes is a tree if:
+        - The underlying undirected graph is a tree with root
+        - There is exactly one path from the root to every other node
+        
+        Returns:
+            bool: True if the graph is a tree, False otherwise
+            
+        Example:
+            >>> # Undirected tree
+            >>> g = Graph(directed=False)
+            >>> g.add_edge(1, 2)
+            >>> g.add_edge(1, 3)
+            >>> g.add_edge(2, 4)
+            >>> g.is_tree()
+            True
+            
+            >>> # Add cycle - no longer a tree
+            >>> g.add_edge(3, 4)
+            >>> g.is_tree()
+            False
+        """
+        if not self._adjacency_list:
+            return True  # Empty graph is considered a tree
+        
+        n = len(self._adjacency_list)  # Number of nodes
+        m = self.get_edge_count()      # Number of edges
+        
+        # Tree property: m = n - 1
+        if m != n - 1:
+            return False
+        
+        if self._directed:
+            # For directed graph: check if it's a rooted tree
+            # 1. Find potential root (node with in-degree 0)
+            in_degree = {v: 0 for v in self._adjacency_list}
+            
+            for vertex in self._adjacency_list:
+                neighbors = list(self._adjacency_list[vertex].keys()) if self._weighted else list(self._adjacency_list[vertex])
+                for neighbor in neighbors:
+                    in_degree[neighbor] += 1
+            
+            # Should have exactly one root (in-degree 0)
+            roots = [v for v, deg in in_degree.items() if deg == 0]
+            if len(roots) != 1:
+                return False
+            
+            root = roots[0]
+            
+            # 2. Check if there's exactly one path from root to every other node
+            # This is satisfied if:
+            # - The graph is connected when treating edges as undirected (already checked via m = n-1)
+            # - Every non-root node has exactly in-degree 1 (already verified)
+            # - No cycles exist in directed sense
+            
+            # Check all non-root nodes have in-degree 1
+            for vertex in self._adjacency_list:
+                if vertex != root and in_degree[vertex] != 1:
+                    return False
+            
+            # Check for cycles in directed graph
+            if self.has_cycle():
+                return False
+            
+            # Check connectivity from root (BFS)
+            visited = set()
+            queue = [root]
+            
+            while queue:
+                vertex = queue.pop(0)
+                if vertex in visited:
+                    continue
+                visited.add(vertex)
+                
+                neighbors = list(self._adjacency_list[vertex].keys()) if self._weighted else list(self._adjacency_list[vertex])
+                for neighbor in neighbors:
+                    if neighbor not in visited:
+                        queue.append(neighbor)
+            
+            return len(visited) == n
+        
+        else:
+            # For undirected graph: check if connected and acyclic
+            # With m = n - 1 already verified, we just need to check connectivity
+            # (because connected + m = n-1 guarantees no cycles)
+            return self.is_connected()
+    
+    def get_edge_count(self) -> int:
+        """
+        Get the number of edges in the graph.
+        For undirected graphs, counts each edge once.
+        For directed graphs, counts each directed edge.
+        
+        Returns:
+            int: Number of edges
+        """
+        if not self._adjacency_list:
+            return 0
+        
+        count = 0
+        if self._weighted:
+            for vertex in self._adjacency_list:
+                count += len(self._adjacency_list[vertex])
+        else:
+            for vertex in self._adjacency_list:
+                count += len(self._adjacency_list[vertex])
+        
+        # For undirected graphs, each edge is counted twice
+        if not self._directed:
+            count //= 2
+        
+        return count
+    
     def get_connected_components(self) -> List[Set[Any]]:
         """
         Get all connected components.

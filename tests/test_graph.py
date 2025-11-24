@@ -1226,3 +1226,229 @@ class TestFindAllCycles:
         cycles = g.find_all_cycles()
         # Self-loop should be detected as a cycle
         assert len(cycles) > 0
+
+
+class TestIsTree:
+    """Test cases for checking if a graph is a tree"""
+    
+    def test_empty_graph_is_tree(self):
+        """Empty graph is considered a tree"""
+        g = Graph(directed=False)
+        assert g.is_tree() == True
+    
+    def test_single_vertex_is_tree(self):
+        """Single vertex with no edges is a tree"""
+        g = Graph(directed=False)
+        g.add_vertex('A')
+        assert g.is_tree() == True
+    
+    def test_simple_undirected_tree(self):
+        """Simple undirected tree: A-B-C"""
+        g = Graph(directed=False)
+        g.add_edge('A', 'B')
+        g.add_edge('B', 'C')
+        
+        assert g.is_tree() == True
+        assert g.get_edge_count() == 2
+        assert len(g.get_vertices()) == 3
+    
+    def test_undirected_tree_with_branching(self):
+        """Undirected tree with branching"""
+        g = Graph(directed=False)
+        # Tree structure:
+        #       1
+        #      / \
+        #     2   3
+        #    / \
+        #   4   5
+        g.add_edge(1, 2)
+        g.add_edge(1, 3)
+        g.add_edge(2, 4)
+        g.add_edge(2, 5)
+        
+        assert g.is_tree() == True
+        assert g.get_edge_count() == 4
+        assert len(g.get_vertices()) == 5
+    
+    def test_undirected_tree_becomes_cyclic(self):
+        """Adding edge to tree creates cycle"""
+        g = Graph(directed=False)
+        g.add_edge('A', 'B')
+        g.add_edge('B', 'C')
+        g.add_edge('C', 'D')
+        
+        assert g.is_tree() == True
+        
+        # Add edge to create cycle
+        g.add_edge('D', 'A')
+        assert g.is_tree() == False
+    
+    def test_undirected_disconnected_graph_not_tree(self):
+        """Disconnected graph is not a tree"""
+        g = Graph(directed=False)
+        # Two separate components
+        g.add_edge('A', 'B')
+        g.add_edge('C', 'D')
+        
+        assert g.is_tree() == False
+    
+    def test_undirected_graph_with_cycle_not_tree(self):
+        """Graph with cycle is not a tree"""
+        g = Graph(directed=False)
+        # Triangle
+        g.add_edge('A', 'B')
+        g.add_edge('B', 'C')
+        g.add_edge('C', 'A')
+        
+        assert g.is_tree() == False
+    
+    def test_undirected_wrong_edge_count_not_tree(self):
+        """Graph with wrong edge count is not a tree"""
+        g = Graph(directed=False)
+        # 3 nodes but 3 edges (should be 2 for tree)
+        g.add_edge('A', 'B')
+        g.add_edge('B', 'C')
+        g.add_edge('C', 'A')
+        
+        assert g.get_edge_count() == 3
+        assert len(g.get_vertices()) == 3
+        assert g.is_tree() == False  # m != n-1
+    
+    def test_directed_tree_simple(self):
+        """Simple directed tree with root"""
+        g = Graph(directed=True)
+        # Root -> A -> B
+        g.add_edge('Root', 'A')
+        g.add_edge('A', 'B')
+        
+        assert g.is_tree() == True
+    
+    def test_directed_tree_with_branching(self):
+        """Directed tree with branching from root"""
+        g = Graph(directed=True)
+        #       Root
+        #       /  \
+        #      A    B
+        #     / \
+        #    C   D
+        g.add_edge('Root', 'A')
+        g.add_edge('Root', 'B')
+        g.add_edge('A', 'C')
+        g.add_edge('A', 'D')
+        
+        assert g.is_tree() == True
+        assert g.get_edge_count() == 4
+        assert len(g.get_vertices()) == 5
+    
+    def test_directed_no_root_not_tree(self):
+        """Directed graph with no root (no node with in-degree 0) is not a tree"""
+        g = Graph(directed=True)
+        # Cycle: A -> B -> C -> A
+        g.add_edge('A', 'B')
+        g.add_edge('B', 'C')
+        g.add_edge('C', 'A')
+        
+        assert g.is_tree() == False
+    
+    def test_directed_multiple_roots_not_tree(self):
+        """Directed graph with multiple roots is not a tree"""
+        g = Graph(directed=True)
+        # Two roots: A and C
+        g.add_edge('A', 'B')
+        g.add_edge('C', 'D')
+        
+        assert g.is_tree() == False
+    
+    def test_directed_with_cycle_not_tree(self):
+        """Directed graph with cycle is not a tree"""
+        g = Graph(directed=True)
+        g.add_edge('Root', 'A')
+        g.add_edge('A', 'B')
+        g.add_edge('B', 'A')  # Cycle between A and B
+        
+        assert g.is_tree() == False
+    
+    def test_directed_node_with_multiple_parents_not_tree(self):
+        """Directed graph where a node has multiple parents is not a tree"""
+        g = Graph(directed=True)
+        #   Root   A
+        #     \   /
+        #       B
+        g.add_edge('Root', 'B')
+        g.add_edge('A', 'B')  # B has two parents
+        
+        assert g.is_tree() == False  # B has in-degree 2
+    
+    def test_weighted_undirected_tree(self):
+        """Weighted undirected graph can be a tree"""
+        g = Graph(directed=False, weighted=True)
+        g.add_edge('A', 'B', 1.5)
+        g.add_edge('B', 'C', 2.0)
+        g.add_edge('C', 'D', 3.5)
+        
+        assert g.is_tree() == True
+    
+    def test_weighted_directed_tree(self):
+        """Weighted directed graph can be a tree"""
+        g = Graph(directed=True, weighted=True)
+        g.add_edge('Root', 'A', 10)
+        g.add_edge('Root', 'B', 20)
+        g.add_edge('A', 'C', 30)
+        
+        assert g.is_tree() == True
+    
+    def test_linear_chain_is_tree(self):
+        """Linear chain is a tree"""
+        g = Graph(directed=False)
+        for i in range(10):
+            g.add_edge(i, i+1)
+        
+        assert g.is_tree() == True
+        assert g.get_edge_count() == 10
+        assert len(g.get_vertices()) == 11
+    
+    def test_star_graph_is_tree(self):
+        """Star graph (all nodes connected to center) is a tree"""
+        g = Graph(directed=False)
+        # Center connected to 5 outer nodes
+        for i in range(1, 6):
+            g.add_edge('Center', i)
+        
+        assert g.is_tree() == True
+        assert g.get_edge_count() == 5
+        assert len(g.get_vertices()) == 6
+    
+    def test_directed_star_is_tree(self):
+        """Directed star graph from root is a tree"""
+        g = Graph(directed=True)
+        # Root pointing to 5 children
+        for i in range(1, 6):
+            g.add_edge('Root', i)
+        
+        assert g.is_tree() == True
+    
+    def test_get_edge_count_undirected(self):
+        """Test edge counting for undirected graphs"""
+        g = Graph(directed=False)
+        g.add_edge('A', 'B')
+        g.add_edge('B', 'C')
+        g.add_edge('C', 'D')
+        
+        assert g.get_edge_count() == 3
+    
+    def test_get_edge_count_directed(self):
+        """Test edge counting for directed graphs"""
+        g = Graph(directed=True)
+        g.add_edge('A', 'B')
+        g.add_edge('B', 'C')
+        g.add_edge('C', 'D')
+        
+        assert g.get_edge_count() == 3
+    
+    def test_get_edge_count_weighted(self):
+        """Test edge counting for weighted graphs"""
+        g = Graph(directed=False, weighted=True)
+        g.add_edge('A', 'B', 1.0)
+        g.add_edge('B', 'C', 2.0)
+        
+        assert g.get_edge_count() == 2

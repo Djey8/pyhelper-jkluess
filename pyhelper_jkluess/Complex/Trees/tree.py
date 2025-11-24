@@ -22,10 +22,13 @@ Terms:
 - Height: maximum depth of any node
 """
 
-from typing import Any, List, Optional, Set, Dict
+from typing import Any, List, Optional, Set, Dict, TYPE_CHECKING
 from collections import deque
 import networkx as nx
 from matplotlib.patches import Patch
+
+if TYPE_CHECKING:
+    from .binary_tree import BinaryTree, BinaryNode
 
 
 class Node:
@@ -237,12 +240,75 @@ class Tree:
         return tree
     
     @classmethod
+    def from_nested_structure(cls, structure: Any) -> 'Tree':
+        """
+        Creates a tree from a nested structure (tuple/list format).
+        
+        This method allows creating trees with duplicate node values by using
+        a nested structure where each node is represented as either:
+        - A single value (for leaf nodes)
+        - A tuple/list: (value, [child1, child2, ...]) (for nodes with children)
+        
+        Args:
+            structure: Nested structure representing the tree
+            
+        Returns:
+            A new Tree instance
+            
+        Example:
+            >>> # Tree with duplicate values: + has two * children, each * has different children
+            >>> structure = ('+', [
+            ...     ('*', [
+            ...         ('+', [3, 4]),
+            ...         5
+            ...     ]),
+            ...     ('*', [2, 3])
+            ... ])
+            >>> tree = Tree.from_nested_structure(structure)
+        """
+        def build_tree_recursive(parent_node: Optional[Node], node_structure: Any, tree: 'Tree') -> Node:
+            """Helper function to recursively build tree from structure."""
+            # Check if node has children (tuple/list with 2 elements)
+            if isinstance(node_structure, (tuple, list)) and len(node_structure) == 2:
+                value, children = node_structure
+                
+                # Create or use node
+                if parent_node is None:
+                    # Root node
+                    tree.set_root(value)
+                    current_node = tree.root
+                else:
+                    # Child node
+                    current_node = tree.add_child(parent_node, value)
+                
+                # Recursively add children
+                if isinstance(children, list):
+                    for child_structure in children:
+                        build_tree_recursive(current_node, child_structure, tree)
+                
+                return current_node
+            else:
+                # Leaf node (just a value)
+                if parent_node is None:
+                    tree.set_root(node_structure)
+                    return tree.root
+                else:
+                    return tree.add_child(parent_node, node_structure)
+        
+        tree = cls()
+        build_tree_recursive(None, structure, tree)
+        return tree
+    
+    @classmethod
     def from_adjacency_list(cls, adj_list: Dict[Any, List[Any]], root: Any) -> 'Tree':
         """
         Creates a tree from an adjacency list.
         
         The adjacency list is a dictionary where each key is a parent node
         and the value is a list of its children.
+        
+        Note: This method assumes each node value is unique. For trees with
+        duplicate node values, use from_nested_structure() instead.
         
         Args:
             adj_list: Dictionary mapping parent nodes to lists of children
@@ -914,6 +980,82 @@ class Tree:
         
         return adj_list
     
+    def to_nested_structure(self, node: Optional[Node] = None) -> Any:
+        """
+        Converts the tree to a nested structure representation.
+        
+        This method converts a tree into the nested tuple/list format used by
+        from_nested_structure(). This is useful for trees with duplicate node values,
+        as it preserves the exact structure without ambiguity.
+        
+        Args:
+            node: The node to start from (default: root). Used for recursion.
+            
+        Returns:
+            Nested structure where each node is either:
+            - A single value (for leaf nodes)
+            - A tuple (value, [children]) (for nodes with children)
+            
+        Example:
+            >>> tree = Tree("+")
+            >>> left = tree.add_child(tree.root, "*")
+            >>> tree.add_child(left, 3)
+            >>> tree.add_child(left, 4)
+            >>> right = tree.add_child(tree.root, "*")
+            >>> tree.add_child(right, 5)
+            >>> structure = tree.to_nested_structure()
+            >>> # ('+', [('*', [3, 4]), ('*', [5])])
+        """
+        if self.is_empty():
+            return None
+        
+        if node is None:
+            node = self.root
+        
+        # If leaf node, return just the value
+        if node.is_leaf():
+            return node.data
+        
+        # If node has children, return (value, [children])
+        children = [self.to_nested_structure(child) for child in node.children]
+        return (node.data, children)
+    
+    def get_node_labels(self) -> List[Any]:
+        """
+        Returns the node labels in the same order as the adjacency matrix.
+        
+        This method returns node labels in BFS (level-order) traversal, which matches
+        the order used by get_adjacency_matrix(). You can use this with 
+        Tree.from_adjacency_matrix() to reconstruct the tree.
+        
+        Returns:
+            List of node labels in BFS order
+            
+        Example:
+            >>> tree = Tree("A")
+            >>> b = tree.add_child(tree.root, "B")
+            >>> c = tree.add_child(tree.root, "C")
+            >>> tree.add_child(b, "D")
+            >>> labels = tree.get_node_labels()
+            >>> # ['A', 'B', 'C', 'D']
+            >>> matrix = tree.get_adjacency_matrix()
+            >>> tree2 = Tree.from_adjacency_matrix(matrix, labels)
+            >>> # tree2 is identical to tree
+        """
+        if self.is_empty():
+            return []
+        
+        # Get all nodes in level-order (BFS) - same order as adjacency matrix
+        labels = []
+        queue = deque([self.root])
+        
+        while queue:
+            node = queue.popleft()
+            labels.append(node.data)
+            queue.extend(node.children)
+        
+        return labels
+    
     def visualize(self, title: str = "", figsize: tuple = (12, 9), 
                   root_position: str = "top", positions: Optional[Dict[Any, tuple]] = None):
         """
@@ -1163,6 +1305,119 @@ class Tree:
                 pos = {node: (max_x - x, y) for node, (x, y) in pos.items()}
         
         return pos
+    
+    def to_binary_tree(self, preserve_binary: bool = False) -> 'BinaryTree':
+        """
+        Convert this tree to a BinaryTree using LCRS (Left-Child Right-Sibling) representation.
+        
+        In LCRS representation:
+        - Left child pointer points to first child of the node
+        - Right child pointer points to next sibling of the node
+        
+        This allows representing any general tree as a binary tree.
+        
+        Args:
+            preserve_binary: If True, preserve subtrees that are already binary (max 2 children).
+                           Only apply LCRS conversion to nodes with 3+ children.
+                           If False (default), apply LCRS consistently to all nodes.
+        
+        Returns:
+            A new BinaryTree with LCRS structure
+            
+        Example:
+            Original tree:
+                  A
+                / | \\
+               B  C  D
+              / \\
+             E   F
+            
+            LCRS Binary tree (preserve_binary=False):
+                  A
+                 /
+                B
+               / \\
+              E   C
+               \\   \\
+                F   D
+            
+            With preserve_binary=True, subtrees with ≤2 children maintain structure.
+        """
+        from .binary_tree import BinaryTree, BinaryNode
+        
+        if self.root is None:
+            return BinaryTree()
+        
+        binary_tree = BinaryTree(self.root.data)
+        self._convert_to_binary_recursive(self.root, binary_tree.root, preserve_binary)
+        return binary_tree
+    
+    def _convert_to_binary_recursive(self, tree_node: Node, binary_node: 'BinaryNode', preserve_binary: bool = False) -> None:
+        """
+        Recursive helper to convert tree structure to LCRS binary tree.
+        
+        Args:
+            tree_node: Current node in original tree
+            binary_node: Corresponding node in binary tree
+            preserve_binary: Whether to preserve binary subtrees when possible
+            
+        Note:
+            When preserve_binary=True:
+            - Nodes with ≤2 children: Attempt to preserve as left/right children
+            - Nodes with >2 children: Always use LCRS
+            
+            However, preservation can only succeed if the node's right pointer is available.
+            If a parent uses LCRS (has >2 children), child nodes become siblings and their
+            right pointers are used for the sibling chain, preventing binary preservation.
+        """
+        from .binary_tree import BinaryNode
+        
+        children = tree_node.children
+        if not children:
+            return
+        
+        # Check if binary_node.right is already claimed (by sibling chain)
+        right_available = (binary_node.right is None)
+        
+        # Decide whether to preserve or use LCRS for this node's children
+        if preserve_binary and len(children) <= 2:
+            # Attempt to preserve binary structure
+            first_child = BinaryNode(children[0].data)
+            binary_node.left = first_child
+            first_child.parent = binary_node
+            self._convert_to_binary_recursive(children[0], first_child, preserve_binary)
+            
+            if len(children) == 2:
+                second_child = BinaryNode(children[1].data)
+                if right_available:
+                    # Right pointer available, preserve as right child
+                    binary_node.right = second_child
+                    second_child.parent = binary_node
+                else:
+                    # Right pointer not available (used by sibling), chain as sibling of first_child
+                    first_child.right = second_child
+                    second_child.parent = binary_node
+                self._convert_to_binary_recursive(children[1], second_child, preserve_binary)
+        else:
+            # Use LCRS: left = first child, siblings form a chain via right pointers
+            first_child = BinaryNode(children[0].data)
+            binary_node.left = first_child
+            first_child.parent = binary_node
+            
+            # Create sibling chain first
+            current_sibling = first_child
+            for i in range(1, len(children)):
+                next_sibling = BinaryNode(children[i].data)
+                current_sibling.right = next_sibling
+                next_sibling.parent = binary_node
+                current_sibling = next_sibling
+            
+            # Now recurse into each child
+            # Since right pointers are already set for siblings, preservation will be limited
+            current = first_child
+            for child in children:
+                self._convert_to_binary_recursive(child, current, preserve_binary)
+                current = current.right
     
     def __str__(self) -> str:
         stats = self.get_statistics()
