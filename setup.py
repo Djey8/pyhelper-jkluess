@@ -12,7 +12,7 @@ setup(
     description="A collection of Python data structures for educational purposes",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/Djey8/pyhelper-jkluess",
+    url="https://github.com/Djey8/pyhelper-jkluess.git",
     packages=find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
