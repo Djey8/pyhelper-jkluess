@@ -1303,6 +1303,119 @@ class Tree:
         
         return pos
     
+    def to_binary_tree(self, preserve_binary: bool = False) -> 'BinaryTree':
+        """
+        Convert this tree to a BinaryTree using LCRS (Left-Child Right-Sibling) representation.
+        
+        In LCRS representation:
+        - Left child pointer points to first child of the node
+        - Right child pointer points to next sibling of the node
+        
+        This allows representing any general tree as a binary tree.
+        
+        Args:
+            preserve_binary: If True, preserve subtrees that are already binary (max 2 children).
+                           Only apply LCRS conversion to nodes with 3+ children.
+                           If False (default), apply LCRS consistently to all nodes.
+        
+        Returns:
+            A new BinaryTree with LCRS structure
+            
+        Example:
+            Original tree:
+                  A
+                / | \\
+               B  C  D
+              / \\
+             E   F
+            
+            LCRS Binary tree (preserve_binary=False):
+                  A
+                 /
+                B
+               / \\
+              E   C
+               \\   \\
+                F   D
+            
+            With preserve_binary=True, subtrees with ≤2 children maintain structure.
+        """
+        from .binary_tree import BinaryTree, BinaryNode
+        
+        if self.root is None:
+            return BinaryTree()
+        
+        binary_tree = BinaryTree(self.root.data)
+        self._convert_to_binary_recursive(self.root, binary_tree.root, preserve_binary)
+        return binary_tree
+    
+    def _convert_to_binary_recursive(self, tree_node: Node, binary_node: 'BinaryNode', preserve_binary: bool = False) -> None:
+        """
+        Recursive helper to convert tree structure to LCRS binary tree.
+        
+        Args:
+            tree_node: Current node in original tree
+            binary_node: Corresponding node in binary tree
+            preserve_binary: Whether to preserve binary subtrees when possible
+            
+        Note:
+            When preserve_binary=True:
+            - Nodes with ≤2 children: Attempt to preserve as left/right children
+            - Nodes with >2 children: Always use LCRS
+            
+            However, preservation can only succeed if the node's right pointer is available.
+            If a parent uses LCRS (has >2 children), child nodes become siblings and their
+            right pointers are used for the sibling chain, preventing binary preservation.
+        """
+        from .binary_tree import BinaryNode
+        
+        children = tree_node.children
+        if not children:
+            return
+        
+        # Check if binary_node.right is already claimed (by sibling chain)
+        right_available = (binary_node.right is None)
+        
+        # Decide whether to preserve or use LCRS for this node's children
+        if preserve_binary and len(children) <= 2:
+            # Attempt to preserve binary structure
+            first_child = BinaryNode(children[0].data)
+            binary_node.left = first_child
+            first_child.parent = binary_node
+            self._convert_to_binary_recursive(children[0], first_child, preserve_binary)
+            
+            if len(children) == 2:
+                second_child = BinaryNode(children[1].data)
+                if right_available:
+                    # Right pointer available, preserve as right child
+                    binary_node.right = second_child
+                    second_child.parent = binary_node
+                else:
+                    # Right pointer not available (used by sibling), chain as sibling of first_child
+                    first_child.right = second_child
+                    second_child.parent = binary_node
+                self._convert_to_binary_recursive(children[1], second_child, preserve_binary)
+        else:
+            # Use LCRS: left = first child, siblings form a chain via right pointers
+            first_child = BinaryNode(children[0].data)
+            binary_node.left = first_child
+            first_child.parent = binary_node
+            
+            # Create sibling chain first
+            current_sibling = first_child
+            for i in range(1, len(children)):
+                next_sibling = BinaryNode(children[i].data)
+                current_sibling.right = next_sibling
+                next_sibling.parent = binary_node
+                current_sibling = next_sibling
+            
+            # Now recurse into each child
+            # Since right pointers are already set for siblings, preservation will be limited
+            current = first_child
+            for child in children:
+                self._convert_to_binary_recursive(child, current, preserve_binary)
+                current = current.right
+    
     def __str__(self) -> str:
         stats = self.get_statistics()
         return (f"Tree(nodes={stats['node_count']}, "

@@ -397,6 +397,123 @@ For a balanced binary tree:
 - The height difference between any two leaves ≤ 1
 - Ensures O(log n) operations in many applications
 
+## LCRS Conversion (Left-Child Right-Sibling)
+
+The Tree class provides a `to_binary_tree()` method that converts any general tree into a binary tree using the **Left-Child Right-Sibling (LCRS)** representation.
+
+### LCRS Principle
+
+In LCRS representation:
+- The **left pointer** of a node points to its **first child**
+- The **right pointer** of a node points to its **next sibling**
+
+This allows any tree (with any number of children per node) to be represented as a binary tree.
+
+### Example
+
+Original Tree:
+```
+    A
+   /|\
+  B C D
+ /|
+E F
+```
+
+LCRS Binary Tree:
+```
+      A
+     /
+    B
+   / \
+  E   C
+   \   \
+    F   D
+```
+
+Explanation:
+- A's left = B (first child)
+- B's right = C (sibling), C's right = D (sibling)
+- B's left = E (first child)
+- E's right = F (sibling)
+
+### Usage
+
+```python
+from pyhelper_jkluess.Complex.Trees.tree import Tree
+
+# Create general tree
+tree = Tree("Root")
+a = tree.add_child(tree.root, "A")
+b = tree.add_child(tree.root, "B")
+c = tree.add_child(tree.root, "C")
+tree.add_child(a, "A1")
+tree.add_child(a, "A2")
+
+# Convert to binary tree
+binary = tree.to_binary_tree()
+```
+
+### preserve_binary Parameter
+
+The `to_binary_tree(preserve_binary=False)` method accepts an optional `preserve_binary` parameter:
+
+**`preserve_binary=False` (default - Pure LCRS):**
+- Always applies LCRS consistently
+- All nodes use left=first child, right=sibling
+- Guarantees consistent structure
+
+**`preserve_binary=True` (Hybrid Mode):**
+- Attempts to preserve binary structure when possible
+- Nodes with ≤2 children: Try to preserve as left/right children
+- Nodes with >2 children: Always use LCRS
+- **Important**: If a parent uses LCRS (has >2 children), child nodes cannot fully preserve their binary structure because the right pointer is needed for siblings
+
+### Preservation Limitations
+
+When `preserve_binary=True`, preservation only works if the node's right pointer is available:
+
+```python
+# Example 1: Full preservation possible
+tree = Tree(1)
+tree.add_child(tree.root, 2)
+tree.add_child(tree.root, 3)  # 2 children
+
+binary = tree.to_binary_tree(preserve_binary=True)
+# Structure: root.left=2, root.right=3 (preserved!)
+
+# Example 2: Limited preservation
+tree = Tree("Root")
+a = tree.add_child(tree.root, "A")
+b = tree.add_child(tree.root, "B")
+c = tree.add_child(tree.root, "C")  # 3 children - must use LCRS
+tree.add_child(a, "A1")
+tree.add_child(a, "A2")  # A has 2 children
+
+binary = tree.to_binary_tree(preserve_binary=True)
+# Root: LCRS (A.left=A, A.right=B sibling, B.right=C sibling)
+# A: Cannot preserve! A.right is used for sibling B
+#    So A.left=A1, A1.right=A2 (chained as siblings)
+```
+
+### When to Use Each Mode
+
+- **Use `preserve_binary=False`**: 
+  - Need consistent LCRS structure
+  - Tree has many nodes with >2 children
+  - Converting for educational purposes (learning LCRS)
+
+- **Use `preserve_binary=True`**:
+  - Tree is mostly binary (most nodes have ≤2 children)
+  - Want more intuitive structure where possible
+  - Converting partially binary trees
+
+### Properties
+
+- **Node preservation**: All nodes from the original tree are present in the binary tree
+- **Traversal equivalence**: Pre-order traversal of original tree matches pre-order of LCRS tree
+- **Reversibility**: LCRS is a lossless transformation (can reconstruct original if needed)
+
 ## Comparison with Tree Class
 
 | Feature | Tree | BinaryTree |
@@ -405,6 +522,7 @@ For a balanced binary tree:
 | In-order traversal | ❌ | ✅ |
 | Binary constraint | ❌ | ✅ |
 | Complete/Perfect check | ❌ | ✅ |
+| LCRS conversion | ✅ (to binary) | N/A |
 | All other operations | ✅ | ✅ (inherited) |
 
 ## Performance
