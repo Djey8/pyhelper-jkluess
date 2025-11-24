@@ -109,11 +109,15 @@ tree.get_statistics()                 # Dict with all metrics
 #          inner_node_count, satisfies_tree_property, 
 #          is_connected, is_acyclic
 
-# Import/Export Adjacency Representations
-matrix = tree.get_adjacency_matrix()  # Export to matrix
-adj_list = tree.get_adjacency_list()  # Export to adjacency list
+# Import/Export Representations
+matrix = tree.get_adjacency_matrix()      # Export to matrix
+labels = tree.get_node_labels()            # Get labels for matrix reconstruction
+adj_list = tree.get_adjacency_list()      # Export to adjacency list (unique values)
+nested = tree.to_nested_structure()       # Export to nested structure (handles duplicates)
+
 tree2 = Tree.from_adjacency_matrix(matrix, labels)  # Import from matrix
 tree3 = Tree.from_adjacency_list(adj_list, root)    # Import from list
+tree4 = Tree.from_nested_structure(nested)          # Import from nested structure
 
 # Visualization
 tree.print_tree()                     # ASCII tree structure
@@ -188,6 +192,52 @@ exported_list = tree.get_adjacency_list()
 print(exported_list)  # Same as original
 ```
 
+### From Nested Structure (For Duplicate Values)
+
+When you need multiple nodes with the same value (e.g., math expression trees), use nested structure:
+
+```python
+# Math expression: (3 + 4) * 5 + 2 * 3
+# Tree structure with duplicate operators:
+#        +
+#       / \
+#      *   *
+#     / \ / \
+#    +  5 2  3
+#   / \
+#  3   4
+
+structure = ('+', [
+    ('*', [
+        ('+', [3, 4]),
+        5
+    ]),
+    ('*', [2, 3])
+])
+
+math_tree = Tree.from_nested_structure(structure)
+math_tree.print_tree()
+# └── +
+#     ├── *
+#     │   ├── +
+#     │   │   ├── 3
+#     │   │   └── 4
+#     │   └── 5
+#     └── *
+#         ├── 2
+#         └── 3
+
+# Both * nodes and both 3 nodes are distinct despite having the same value
+
+# Export back to nested structure
+exported = math_tree.to_nested_structure()
+# ('+', [('*', [('+', [3, 4]), 5]), ('*', [2, 3])])
+
+# Can recreate exact tree
+math_tree2 = Tree.from_nested_structure(exported)
+# Both * nodes and both 3 nodes are preserved as distinct nodes
+```
+
 ### Round-trip Conversion
 
 ```python
@@ -196,13 +246,14 @@ tree = Tree("X")
 tree.add_child(tree.root, "Y")
 tree.add_child(tree.root, "Z")
 
-# Export to matrix
+# Export to matrix and labels
 matrix = tree.get_adjacency_matrix()
+labels = tree.get_node_labels()  # Get labels in same order as matrix
 
-# Import back
-tree2 = Tree.from_adjacency_matrix(matrix, ['X', 'Y', 'Z'])
+# Import back - trees are structurally identical
+tree2 = Tree.from_adjacency_matrix(matrix, labels)
 
-# Trees are structurally identical
+# Verify they're identical
 assert tree.get_node_count() == tree2.get_node_count()
 assert tree.traverse_levelorder() == tree2.traverse_levelorder()
 ```
@@ -276,7 +327,7 @@ print(f"ICs: {[n.data for n in org.get_leaves()]}")
 
 ## All Available Operations
 
-### **Tree Class Operations (38 total)**
+### **Tree Class Operations (41 total)**
 
 **Creation & Basic (4):**
 - `Tree(root_data=None)` - Create tree
@@ -284,11 +335,14 @@ print(f"ICs: {[n.data for n in org.get_leaves()]}")
 - `set_root(data)` - Set/change root
 - `add_child(parent, child_data)` - Add child
 
-**Import/Export (4):**
+**Import/Export (7):**
 - `from_adjacency_matrix(matrix, labels)` - Create from matrix (classmethod)
 - `from_adjacency_list(adj_list, root)` - Create from list (classmethod)
+- `from_nested_structure(structure)` - Create from nested tuples/lists (classmethod)
 - `get_adjacency_matrix()` - Export to matrix
-- `get_adjacency_list()` - Export to adjacency list
+- `get_adjacency_list()` - Export to adjacency list (unique values only)
+- `to_nested_structure()` - Export to nested structure (handles duplicates)
+- `get_node_labels()` - Get labels in matrix order for reconstruction
 
 **Node Counting & Properties (4):**
 - `get_node_count()` - Total nodes (n)
@@ -358,3 +412,52 @@ print(f"ICs: {[n.data for n in org.get_leaves()]}")
 | Path finding | O(n) | O(h) |
 
 *k = children count, h = height, n = nodes*
+
+## Specialized Tree Implementations
+
+This package includes several specialized tree implementations:
+
+### 1. Binary Tree
+A tree where each node has at most two children (left and right). See [BINARY_TREE.md](BINARY_TREE.md) for details.
+
+**Key Features:**
+- Left/right child properties
+- Binary-specific traversals (preorder, inorder, postorder)
+- Tree properties: complete, perfect, balanced
+- Tree sorting algorithm (BST insertion)
+- LCRS (Left-Child Right-Sibling) conversion
+
+```python
+from pyhelper_jkluess.Complex.Trees.binary_tree import BinaryTree
+
+tree = BinaryTree(10)
+tree.insert_left(tree.root, 5)
+tree.insert_right(tree.root, 15)
+```
+
+### 2. Heap
+A specialized binary tree that maintains the heap property (min-heap or max-heap). See [HEAP.md](HEAP.md) for details.
+
+**Key Features:**
+- Min-Heap and Max-Heap support
+- Array-based efficient storage
+- O(1) access to minimum/maximum
+- O(log n) insertion and extraction
+- Heap sort algorithm O(n log n)
+- Extends BinaryTree with visualization
+
+```python
+from pyhelper_jkluess.Complex.Trees.heap import Heap, HeapType, heap_sort
+
+# Min-Heap
+heap = Heap(HeapType.MIN, [5, 3, 7, 1, 9])
+min_val = heap.heap_extract()  # 1
+
+# Heap Sort
+sorted_data = heap_sort([5, 3, 7, 1, 9])  # [1, 3, 5, 7, 9]
+```
+
+### Documentation Links
+
+- **[Binary Tree Documentation](BINARY_TREE.md)** - Complete binary tree reference
+- **[Heap Documentation](HEAP.md)** - Heap data structure and heap sort
