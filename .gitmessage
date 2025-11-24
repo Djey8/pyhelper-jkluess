@@ -1,0 +1,29 @@
+# Commit message template for conventional commits
+# Format: <type>(<scope>): <subject>
+#
+# Type (required): feat, fix, docs, style, refactor, perf, test, chore
+# Scope (optional): trees, graphs, lists, skiplist, etc.
+# Subject (required): short description
+#
+# Examples:
+#   feat(trees): add AVL tree implementation
+#   fix(graphs): correct Dijkstra algorithm edge case
+#   docs: update installation instructions in README
+#   test(lists): add comprehensive linked list tests
+#   refactor(skiplist): improve search performance
+#
+# Breaking changes:
+#   feat!: redesign Graph API
+#   OR
+#   feat: change API structure
+#   
+#   BREAKING CHANGE: Graph now uses node IDs instead of labels
+#
+# Version bumps:
+#   fix:     → PATCH (0.0.X) - bug fixes
+#   feat:    → MINOR (0.X.0) - new features
+#   feat!:   → MAJOR (X.0.0) - breaking changes
+#   BREAKING CHANGE: → MAJOR (X.0.0)
+#
+# Body (optional): Explain what and why (not how)
+# Footer (optional): Reference issues, breaking changes

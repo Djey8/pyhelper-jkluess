@@ -1,0 +1,82 @@
+name: Bug Report
+description: Report a bug in pyhelper-jkluess
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug! When fixed, this will result in a **patch version bump** (0.0.X).
+        
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: What's wrong?
+      placeholder: When I do X, Y happens instead of Z...
+    validations:
+      required: true
+      
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this?
+      placeholder: |
+        1. Import ...
+        2. Call method ...
+        3. See error ...
+      value: |
+        ```python
+        # Paste your code here
+        ```
+    validations:
+      required: true
+      
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What should happen?
+    validations:
+      required: true
+      
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happens?
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which part has the bug?
+      options:
+        - Trees
+        - Graphs
+        - Lists (Linked, Double, Circular)
+        - Skip Lists
+        - Documentation
+        - Other
+    validations:
+      required: true
+      
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Which version are you using?
+      placeholder: "1.0.0"
+    validations:
+      required: true
+      
+  - type: input
+    id: python-version
+    attributes:
+      label: Python Version
+      placeholder: "3.11"
+    validations:
+      required: true
