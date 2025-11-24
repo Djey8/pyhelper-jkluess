@@ -1166,6 +1166,93 @@ class TestGetAdjacencyMatrix:
         assert original_matrix == exported_matrix
 
 
+class TestGetNodeLabels:
+    def test_get_node_labels_simple_tree(self):
+        """Test getting node labels from a simple tree"""
+        tree = Tree('Root')
+        tree.add_child(tree.root, 'A')
+        tree.add_child(tree.root, 'B')
+        
+        labels = tree.get_node_labels()
+        
+        # Should have 3 labels in BFS order
+        assert labels == ['Root', 'A', 'B']
+    
+    def test_get_node_labels_empty_tree(self):
+        """Test getting node labels from empty tree"""
+        tree = Tree()
+        labels = tree.get_node_labels()
+        assert labels == []
+    
+    def test_get_node_labels_single_node(self):
+        """Test getting node labels from single node tree"""
+        tree = Tree('Root')
+        labels = tree.get_node_labels()
+        assert labels == ['Root']
+    
+    def test_get_node_labels_multilevel_tree(self):
+        """Test getting node labels from multi-level tree"""
+        tree = Tree('Root')
+        a = tree.add_child(tree.root, 'A')
+        b = tree.add_child(tree.root, 'B')
+        tree.add_child(a, 'A1')
+        tree.add_child(a, 'A2')
+        tree.add_child(b, 'B1')
+        
+        labels = tree.get_node_labels()
+        
+        # Should be in BFS order: Root, then level 1 (A, B), then level 2 (A1, A2, B1)
+        assert labels == ['Root', 'A', 'B', 'A1', 'A2', 'B1']
+    
+    def test_get_node_labels_matches_adjacency_matrix_order(self):
+        """Test that node labels order matches adjacency matrix rows/columns"""
+        tree = Tree('X')
+        y = tree.add_child(tree.root, 'Y')
+        z = tree.add_child(tree.root, 'Z')
+        tree.add_child(y, 'Y1')
+        
+        labels = tree.get_node_labels()
+        matrix = tree.get_adjacency_matrix()
+        
+        # Labels should be in same order as matrix
+        assert len(labels) == len(matrix)
+        assert labels == ['X', 'Y', 'Z', 'Y1']
+        
+        # Verify matrix structure matches labels
+        # X (index 0) should be parent of Y (index 1) and Z (index 2)
+        assert matrix[0][1] == 1  # X -> Y
+        assert matrix[0][2] == 1  # X -> Z
+        # Y (index 1) should be parent of Y1 (index 3)
+        assert matrix[1][3] == 1  # Y -> Y1
+    
+    def test_round_trip_with_get_node_labels(self):
+        """Test that tree can be reconstructed using get_node_labels and get_adjacency_matrix"""
+        # Create original tree
+        tree1 = Tree('Root')
+        a = tree1.add_child(tree1.root, 'A')
+        b = tree1.add_child(tree1.root, 'B')
+        tree1.add_child(a, 'A1')
+        tree1.add_child(a, 'A2')
+        tree1.add_child(b, 'B1')
+        
+        # Export
+        matrix = tree1.get_adjacency_matrix()
+        labels = tree1.get_node_labels()
+        
+        # Import into new tree
+        tree2 = Tree.from_adjacency_matrix(matrix, labels)
+        
+        # Verify trees are identical
+        assert tree1.get_node_count() == tree2.get_node_count()
+        assert tree1.traverse_levelorder() == tree2.traverse_levelorder()
+        
+        # Export again and verify matrix/labels match
+        matrix2 = tree2.get_adjacency_matrix()
+        labels2 = tree2.get_node_labels()
+        assert matrix == matrix2
+        assert labels == labels2
+
+
 class TestGetAdjacencyList:
     def test_get_adjacency_list_simple_tree(self):
         """Test getting adjacency list from a simple tree"""
