@@ -1,5 +1,5 @@
 import pytest
-from Complex.Graphs.weighted_directed_graph import WeightedDirectedGraph
+from pyhelper_jkluess.Complex.Graphs.weighted_directed_graph import WeightedDirectedGraph
 
 
 class TestWeightedDirectedGraphCreation:

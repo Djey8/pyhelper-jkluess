@@ -1,5 +1,5 @@
 import pytest
-from Complex.Graphs.graph import Graph
+from pyhelper_jkluess.Complex.Graphs.graph import Graph
 
 
 class TestGraphCreation:

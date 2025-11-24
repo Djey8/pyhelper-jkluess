@@ -1,8 +1,18 @@
 # Graphs
 
-Graph implementations with visualization support using a unified architecture.
+**A Graph is a collection of vertices (nodes) connected by edges** - the mathematical foundation for modeling networks and relationships.
 
 **Required:** `pip install networkx matplotlib`
+
+## Core Concept
+
+Graphs model **pairwise relationships** between entities:
+- **Vertices (Nodes)**: The entities (people, cities, web pages, tasks)
+- **Edges (Connections)**: The relationships (friendships, roads, links, dependencies)
+- **Directed vs Undirected**: One-way vs bidirectional relationships
+- **Weighted vs Unweighted**: Relationships with costs/distances vs simple connections
+
+**Real-world applications**: Social networks, maps/navigation, task scheduling, network topology, recommendation systems
 
 ## Architecture Overview
 
@@ -18,7 +28,7 @@ All graph classes inherit from a single, powerful **`Graph`** base class that ad
 A single, flexible `Graph` class that adapts to all 4 graph types based on initialization parameters.
 
 ```python
-from Complex.Graphs.graph import Graph
+from pyhelper_jkluess.Complex.Graphs.graph import Graph
 
 # Undirected unweighted graph
 g1 = Graph(directed=False, weighted=False)
@@ -147,7 +157,7 @@ g.visualize(positions=custom_pos)  # Custom node positions
 Edges work both ways: A—B means A connects to B and B connects to A. Inherits all functionality from `Graph` and adds convenience methods.
 
 ```python
-from Complex.Graphs.undirected_graph import UndirectedGraph
+from pyhelper_jkluess.Complex.Graphs.undirected_graph import UndirectedGraph
 
 g = UndirectedGraph()
 g.add_edge("Alice", "Bob")
@@ -172,7 +182,7 @@ g.visualize(title="Social Network")
 Edges have direction: A→B doesn't mean B→A. Inherits all functionality from `Graph` with directed-specific methods.
 
 ```python
-from Complex.Graphs.directed_graph import DirectedGraph
+from pyhelper_jkluess.Complex.Graphs.directed_graph import DirectedGraph
 
 g = DirectedGraph()
 g.add_edge("Task1", "Task2")  # Task1 must complete before Task2
@@ -203,7 +213,7 @@ g.visualize(title="Task Dependencies")
 Like UndirectedGraph but edges have weights (distances, costs, etc.). Inherits all functionality from `Graph` with weighted analysis methods.
 
 ```python
-from Complex.Graphs.weighted_undirected_graph import WeightedUndirectedGraph
+from pyhelper_jkluess.Complex.Graphs.weighted_undirected_graph import WeightedUndirectedGraph
 
 g = WeightedUndirectedGraph()
 g.add_edge("Berlin", "Munich", 584)      # 584 km
@@ -227,7 +237,7 @@ g.visualize(title="City Network")
 Like DirectedGraph but edges have weights. Inherits all functionality from `Graph` with weighted directed-specific methods.
 
 ```python
-from Complex.Graphs.weighted_directed_graph import WeightedDirectedGraph
+from pyhelper_jkluess.Complex.Graphs.weighted_directed_graph import WeightedDirectedGraph
 
 g = WeightedDirectedGraph()
 g.add_edge("A", "B", 10)  # A → B costs 10
@@ -397,7 +407,7 @@ g = WeightedUndirectedGraph.from_adjacency_matrix(weighted_matrix, vertices)
 The `get_adjacency_list()` method allows you to export the graph structure and recreate it later:
 
 ```python
-from Complex.Graphs.graph import Graph
+from pyhelper_jkluess.Complex.Graphs.graph import Graph
 
 # Create and populate a graph
 g1 = Graph(directed=False, weighted=True)
@@ -427,7 +437,7 @@ assert g2.edge_count() == g1.edge_count()
 ### Example: Complete Analysis
 
 ```python
-from Complex.Graphs.undirected_graph import UndirectedGraph
+from pyhelper_jkluess.Complex.Graphs.undirected_graph import UndirectedGraph
 
 g = UndirectedGraph()
 g.add_edge("A", "B")
@@ -503,8 +513,8 @@ All classes support both import styles:
 
 ```python
 # Package import (when using as module)
-from Complex.Graphs.graph import Graph
-from Complex.Graphs.undirected_graph import UndirectedGraph
+from pyhelper_jkluess.Complex.Graphs.graph import Graph
+from pyhelper_jkluess.Complex.Graphs.undirected_graph import UndirectedGraph
 
 # Direct import (when running scripts directly)
 from graph import Graph

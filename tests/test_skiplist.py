@@ -1,5 +1,5 @@
 import pytest
-from Complex.SkipLists.skiplist import SkipList
+from pyhelper_jkluess.Complex.SkipLists.skiplist import SkipList
 
 
 class TestSkipListCreation:

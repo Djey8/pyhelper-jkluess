@@ -13,9 +13,15 @@ This package provides implementations of tree data structures.
 """
 
 try:
-    from Complex.Trees.tree import Tree, TreeNode
+    from pyhelper_jkluess.Complex.Trees.tree import Tree, Node
 except ImportError:
-    from tree import Tree, TreeNode
+    try:
+        from .tree import Tree, Node
+    except ImportError:
+        from tree import Tree, Node
 
-__all__ = ['Tree', 'TreeNode']
+# Export Node as TreeNode for consistency with package naming
+TreeNode = Node
+
+__all__ = ['Tree', 'TreeNode', 'Node']
 __version__ = '0.1.0'

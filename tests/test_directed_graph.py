@@ -1,5 +1,5 @@
 import pytest
-from Complex.Graphs.directed_graph import DirectedGraph
+from pyhelper_jkluess.Complex.Graphs.directed_graph import DirectedGraph
 
 
 class TestDirectedGraphCreation:
