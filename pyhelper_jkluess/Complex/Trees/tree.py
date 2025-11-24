@@ -237,12 +237,75 @@ class Tree:
         return tree
     
     @classmethod
+    def from_nested_structure(cls, structure: Any) -> 'Tree':
+        """
+        Creates a tree from a nested structure (tuple/list format).
+        
+        This method allows creating trees with duplicate node values by using
+        a nested structure where each node is represented as either:
+        - A single value (for leaf nodes)
+        - A tuple/list: (value, [child1, child2, ...]) (for nodes with children)
+        
+        Args:
+            structure: Nested structure representing the tree
+            
+        Returns:
+            A new Tree instance
+            
+        Example:
+            >>> # Tree with duplicate values: + has two * children, each * has different children
+            >>> structure = ('+', [
+            ...     ('*', [
+            ...         ('+', [3, 4]),
+            ...         5
+            ...     ]),
+            ...     ('*', [2, 3])
+            ... ])
+            >>> tree = Tree.from_nested_structure(structure)
+        """
+        def build_tree_recursive(parent_node: Optional[Node], node_structure: Any, tree: 'Tree') -> Node:
+            """Helper function to recursively build tree from structure."""
+            # Check if node has children (tuple/list with 2 elements)
+            if isinstance(node_structure, (tuple, list)) and len(node_structure) == 2:
+                value, children = node_structure
+                
+                # Create or use node
+                if parent_node is None:
+                    # Root node
+                    tree.set_root(value)
+                    current_node = tree.root
+                else:
+                    # Child node
+                    current_node = tree.add_child(parent_node, value)
+                
+                # Recursively add children
+                if isinstance(children, list):
+                    for child_structure in children:
+                        build_tree_recursive(current_node, child_structure, tree)
+                
+                return current_node
+            else:
+                # Leaf node (just a value)
+                if parent_node is None:
+                    tree.set_root(node_structure)
+                    return tree.root
+                else:
+                    return tree.add_child(parent_node, node_structure)
+        
+        tree = cls()
+        build_tree_recursive(None, structure, tree)
+        return tree
+    
+    @classmethod
     def from_adjacency_list(cls, adj_list: Dict[Any, List[Any]], root: Any) -> 'Tree':
         """
         Creates a tree from an adjacency list.
         
         The adjacency list is a dictionary where each key is a parent node
         and the value is a list of its children.
+        
+        Note: This method assumes each node value is unique. For trees with
+        duplicate node values, use from_nested_structure() instead.
         
         Args:
             adj_list: Dictionary mapping parent nodes to lists of children
