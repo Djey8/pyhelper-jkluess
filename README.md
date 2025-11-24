@@ -143,24 +143,24 @@ pyhelper-jkluess/          # Repository root
 ## Documentation by Data Structure Category
 
 ### Linear Structures
-- **[Basic Lists](Basic/README.md)** - LinkedList, DoubleLinkedList, CircularLinkedList
+- **[Basic Lists](pyhelper_jkluess/Basic/README.md)** - LinkedList, DoubleLinkedList, CircularLinkedList
   - Forward-only, bidirectional, and circular traversal patterns
   - When to use: Dynamic arrays, LRU caches, round-robin scheduling
 
 ### Non-Linear Structures
-- **[Graphs](Complex/Graphs/README.md)** - Unified Graph + 4 specialized types
+- **[Graphs](pyhelper_jkluess/Complex/Graphs/README.md)** - Unified Graph + 4 specialized types
   - **Unified Architecture**: Single `Graph` class adapts to all 4 types (64% code reduction)
   - **Graph Theory**: Paths, cycles, connectivity, shortest paths (BFS/Dijkstra)
   - **Representations**: Adjacency matrices and lists (import/export)
   - When to use: Network modeling, dependencies, social networks, routing
 
-- **[Trees](Complex/Trees/README.md)** - Tree with 39 operations
+- **[Trees](pyhelper_jkluess/Complex/Trees/README.md)** - Tree with 39 operations
   - **Properties**: m = n-1 edges, connected, acyclic, unique paths between nodes
   - **Traversals**: Preorder, inorder, postorder, level-order
   - **Features**: Depth/height, ancestors/descendants, adjacency matrix/list support
   - When to use: Hierarchies, file systems, decision trees, taxonomies
 
-- **[Skip Lists](Complex/SkipLists/README.md)** - Deterministic & Probabilistic
+- **[Skip Lists](pyhelper_jkluess/Complex/SkipLists/README.md)** - Deterministic & Probabilistic
   - **Performance**: O(log n) operations with probabilistic balancing
   - **Types**: Key-value store (SkipList) and sorted set (ProbabilisticSkipList)
   - When to use: Sorted data without complex tree balancing
@@ -169,6 +169,31 @@ pyhelper-jkluess/          # Repository root
 
 ```bash
 pytest tests/ -v  # 564 comprehensive tests
+```
+
+## Contributing
+
+We use **automated semantic versioning** with conventional commits. See:
+- **[Quick Start CI/CD Guide](QUICKSTART_CI.md)** - Fast introduction to contributing
+- **[Development Guide](DEVELOPMENT.md)** - Detailed CI/CD and versioning documentation
+
+### Quick Contribution Guide
+
+1. **Fork and clone** the repository
+2. **Create a feature branch** from `develop`
+3. **Use conventional commits**:
+   - `feat:` for new features (minor version bump)
+   - `fix:` for bug fixes (patch version bump)
+   - `docs:` for documentation
+4. **Push and create PR** to `develop`
+5. **Merge to `main`** triggers automatic release and PyPI publish
+
+Example:
+```bash
+git checkout -b feature/add-hash-table develop
+git commit -m "feat(structures): add hash table implementation"
+git commit -m "test(structures): add hash table tests"
+git push origin feature/add-hash-table
 ```
 
 ## License
