@@ -24,7 +24,7 @@ Tree (base class)
 
 ### Binary Tree Types
 
-#### 1. Complete Binary Tree (Vollständiger Binärbaum)
+#### 1. Complete Binary Tree
 Every node has either 0 or exactly 2 children.
 
 ```
@@ -38,7 +38,7 @@ Example:
 
 Check with: `tree.is_complete()`
 
-#### 2. Perfect Binary Tree (Perfekter Binärbaum)
+#### 2. Perfect Binary Tree
 A complete binary tree where all leaves are at the same level. Has `2^k - 1` nodes where `k = height + 1`.
 
 ```
@@ -52,7 +52,7 @@ Example:
 
 Check with: `tree.is_perfect()`
 
-#### 3. Balanced Binary Tree (Balancierter Binärbaum)
+#### 3. Balanced Binary Tree
 Height difference between any two leaves is at most 1.
 
 ```
@@ -73,7 +73,7 @@ Example (not balanced):
 
 Check with: `tree.is_balanced()`
 
-## Tree Sorting Algorithm (Baum-Sortier-Algorithmus)
+## Tree Sorting Algorithm
 
 ### Prerequisites
 Given: n valued nodes
@@ -96,7 +96,7 @@ To be sortable, a total order must be given for the node values, i.e., for all n
 
 ## Traversal Orders
 
-### Pre-Order (Präorder)
+### Pre-Order
 Visit order: **Root → Left → Right**
 
 ```python

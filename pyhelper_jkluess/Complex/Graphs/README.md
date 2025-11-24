@@ -273,7 +273,7 @@ All graph implementations support fundamental graph theory operations.
 - v₀ = v (start vertex / Anfangsknoten)
 - vₖ = v' (end vertex / Endknoten)
 - Edges exist between consecutive vertices
-- k is the length of the path (Länge des Wegs)
+- k is the length of the path
 
 A path is **simple** if all vertices are pairwise distinct. Vertex v' is **reachable** from v if a path exists from v to v'.
 
@@ -348,12 +348,12 @@ print(g.is_acyclic())  # True/False
 ### Connectivity (Zusammenhang)
 
 **Undirected Graphs:**
-- **Connected** (zusammenhängend): Every vertex is reachable from every other vertex
+- **Connected**: Every vertex is reachable from every other vertex
 - **Connected component** (Zusammenhangskomponente): A maximal connected subgraph
 - Equivalence classes with respect to "reachable from" relation
 
 **Directed Graphs:**
-- **Strongly connected** (stark zusammenhängend): Every vertex is reachable from every other vertex following directed edges
+- **Strongly connected**: Every vertex is reachable from every other vertex following directed edges
 - **Strongly connected component**: A maximal subgraph where all vertices are mutually reachable
 - Equivalence classes with respect to "mutually reachable" relation
 
@@ -371,7 +371,7 @@ components = g.get_strongly_connected_components()
 print(components)  # [{'A', 'B'}, {'C', 'D', 'E'}]
 ```
 
-### Tree Detection (Bäume)
+### Tree Detection
 
 **Theory:** A graph G with m edges and n nodes is a tree if:
 

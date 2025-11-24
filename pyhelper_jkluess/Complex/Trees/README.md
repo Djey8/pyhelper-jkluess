@@ -412,3 +412,52 @@ print(f"ICs: {[n.data for n in org.get_leaves()]}")
 | Path finding | O(n) | O(h) |
 
 *k = children count, h = height, n = nodes*
+
+## Specialized Tree Implementations
+
+This package includes several specialized tree implementations:
+
+### 1. Binary Tree
+A tree where each node has at most two children (left and right). See [BINARY_TREE.md](BINARY_TREE.md) for details.
+
+**Key Features:**
+- Left/right child properties
+- Binary-specific traversals (preorder, inorder, postorder)
+- Tree properties: complete, perfect, balanced
+- Tree sorting algorithm (BST insertion)
+- LCRS (Left-Child Right-Sibling) conversion
+
+```python
+from pyhelper_jkluess.Complex.Trees.binary_tree import BinaryTree
+
+tree = BinaryTree(10)
+tree.insert_left(tree.root, 5)
+tree.insert_right(tree.root, 15)
+```
+
+### 2. Heap
+A specialized binary tree that maintains the heap property (min-heap or max-heap). See [HEAP.md](HEAP.md) for details.
+
+**Key Features:**
+- Min-Heap and Max-Heap support
+- Array-based efficient storage
+- O(1) access to minimum/maximum
+- O(log n) insertion and extraction
+- Heap sort algorithm O(n log n)
+- Extends BinaryTree with visualization
+
+```python
+from pyhelper_jkluess.Complex.Trees.heap import Heap, HeapType, heap_sort
+
+# Min-Heap
+heap = Heap(HeapType.MIN, [5, 3, 7, 1, 9])
+min_val = heap.heap_extract()  # 1
+
+# Heap Sort
+sorted_data = heap_sort([5, 3, 7, 1, 9])  # [1, 3, 5, 7, 9]
+```
+
+### Documentation Links
+
+- **[Binary Tree Documentation](BINARY_TREE.md)** - Complete binary tree reference
+- **[Heap Documentation](HEAP.md)** - Heap data structure and heap sort
