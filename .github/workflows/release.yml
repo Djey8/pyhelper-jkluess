@@ -50,7 +50,14 @@ jobs:
       id: version
       run: |
         # Get current version from setup.py
-        CURRENT_VERSION=$(python -c "import re; content = open('setup.py').read(); match = re.search(r'version=[\"'"'"']([^\"'"'"']+)[\"'"'"']', content); print(match.group(1) if match else '0.0.0')")
+        CURRENT_VERSION=$(python3 << 'EOF'
+        import re
+        with open('setup.py', 'r') as f:
+            content = f.read()
+        match = re.search(r'version=["\']([^"\']+)["\']', content)
+        print(match.group(1) if match else '0.0.0')
+        EOF
+        )
         echo "Current version: $CURRENT_VERSION"
         
         # Check if this is the first release (no tags exist)
