@@ -214,33 +214,3 @@ Does it contain "BREAKING CHANGE:" or "feat!:" ?
          (0.0.X)   (skip)
 ```
 
-## Timeline Example
-
-```
-Monday
-  09:00 - Developer creates feature/add-avl-tree from develop
-  10:30 - Commits: feat(trees): add AVL tree
-  11:00 - Commits: test(trees): add AVL tests
-  14:00 - Push and create PR to develop
-  14:30 - PR merged to develop
-
-Tuesday  
-  09:00 - Another developer creates fix/graph-bug from develop
-  10:00 - Commits: fix(graphs): correct cycle detection
-  11:00 - PR merged to develop
-
-Wednesday
-  09:00 - Team decides to release
-  09:15 - Create PR: develop → main
-  09:20 - Review PR (shows: "Will bump to v1.4.0 - MINOR")
-  09:30 - Merge PR
-  09:31 - 🤖 CI starts automatically
-  09:32 - ✅ Tests pass
-  09:33 - 📝 Version updated to 1.4.0
-  09:34 - 🏷️  Tag v1.4.0 created
-  09:35 - 📋 Release notes generated
-  09:36 - 🎉 GitHub release created
-  09:37 - 📦 Package built
-  09:38 - 🚀 Published to PyPI
-  09:39 - ✅ Done! Users can: pip install pyhelper-jkluess==1.4.0
-```
