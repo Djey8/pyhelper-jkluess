@@ -111,6 +111,7 @@ tree.get_statistics()                 # Dict with all metrics
 
 # Import/Export Adjacency Representations
 matrix = tree.get_adjacency_matrix()  # Export to matrix
+labels = tree.get_node_labels()        # Get labels for matrix reconstruction
 adj_list = tree.get_adjacency_list()  # Export to adjacency list
 tree2 = Tree.from_adjacency_matrix(matrix, labels)  # Import from matrix
 tree3 = Tree.from_adjacency_list(adj_list, root)    # Import from list
@@ -196,13 +197,14 @@ tree = Tree("X")
 tree.add_child(tree.root, "Y")
 tree.add_child(tree.root, "Z")
 
-# Export to matrix
+# Export to matrix and labels
 matrix = tree.get_adjacency_matrix()
+labels = tree.get_node_labels()  # Get labels in same order as matrix
 
-# Import back
-tree2 = Tree.from_adjacency_matrix(matrix, ['X', 'Y', 'Z'])
+# Import back - trees are structurally identical
+tree2 = Tree.from_adjacency_matrix(matrix, labels)
 
-# Trees are structurally identical
+# Verify they're identical
 assert tree.get_node_count() == tree2.get_node_count()
 assert tree.traverse_levelorder() == tree2.traverse_levelorder()
 ```
@@ -276,7 +278,7 @@ print(f"ICs: {[n.data for n in org.get_leaves()]}")
 
 ## All Available Operations
 
-### **Tree Class Operations (38 total)**
+### **Tree Class Operations (39 total)**
 
 **Creation & Basic (4):**
 - `Tree(root_data=None)` - Create tree
@@ -284,11 +286,12 @@ print(f"ICs: {[n.data for n in org.get_leaves()]}")
 - `set_root(data)` - Set/change root
 - `add_child(parent, child_data)` - Add child
 
-**Import/Export (4):**
+**Import/Export (5):**
 - `from_adjacency_matrix(matrix, labels)` - Create from matrix (classmethod)
 - `from_adjacency_list(adj_list, root)` - Create from list (classmethod)
 - `get_adjacency_matrix()` - Export to matrix
 - `get_adjacency_list()` - Export to adjacency list
+- `get_node_labels()` - Get labels in matrix order for reconstruction
 
 **Node Counting & Properties (4):**
 - `get_node_count()` - Total nodes (n)

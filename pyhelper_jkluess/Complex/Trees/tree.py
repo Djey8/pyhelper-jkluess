@@ -914,6 +914,42 @@ class Tree:
         
         return adj_list
     
+    def get_node_labels(self) -> List[Any]:
+        """
+        Returns the node labels in the same order as the adjacency matrix.
+        
+        This method returns node labels in BFS (level-order) traversal, which matches
+        the order used by get_adjacency_matrix(). You can use this with 
+        Tree.from_adjacency_matrix() to reconstruct the tree.
+        
+        Returns:
+            List of node labels in BFS order
+            
+        Example:
+            >>> tree = Tree("A")
+            >>> b = tree.add_child(tree.root, "B")
+            >>> c = tree.add_child(tree.root, "C")
+            >>> tree.add_child(b, "D")
+            >>> labels = tree.get_node_labels()
+            >>> # ['A', 'B', 'C', 'D']
+            >>> matrix = tree.get_adjacency_matrix()
+            >>> tree2 = Tree.from_adjacency_matrix(matrix, labels)
+            >>> # tree2 is identical to tree
+        """
+        if self.is_empty():
+            return []
+        
+        # Get all nodes in level-order (BFS) - same order as adjacency matrix
+        labels = []
+        queue = deque([self.root])
+        
+        while queue:
+            node = queue.popleft()
+            labels.append(node.data)
+            queue.extend(node.children)
+        
+        return labels
+    
     def visualize(self, title: str = "", figsize: tuple = (12, 9), 
                   root_position: str = "top", positions: Optional[Dict[Any, tuple]] = None):
         """
