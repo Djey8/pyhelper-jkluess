@@ -73,6 +73,27 @@ Example (not balanced):
 
 Check with: `tree.is_balanced()`
 
+## Tree Sorting Algorithm (Baum-Sortier-Algorithmus)
+
+### Prerequisites
+Given: n valued nodes
+
+### Algorithm
+
+1. The position of a first node with value k₀ is established.
+
+2. When a second node with value k₁ is added, its value is compared with k₀ and it is:
+   - placed **left** of k₀, if k₁ < k₀
+   - placed **right** of k₀, if k₁ > k₀
+   - **ignored**, if k₁ = k₀
+
+3. A new node is then compared step-by-step, starting at k₀, with all subsequent nodes and passed along until it can be placed in a free position.
+
+4. Reading the resulting tree is done **In-Order**.
+
+### Note
+To be sortable, a total order must be given for the node values, i.e., for all node values, the relationships <, =, > between any two values must be unambiguously defined.
+
 ## Traversal Orders
 
 ### Pre-Order (Präorder)

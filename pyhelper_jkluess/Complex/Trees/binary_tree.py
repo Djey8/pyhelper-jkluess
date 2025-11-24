@@ -240,6 +240,96 @@ class BinaryTree(Tree):
         child.parent = parent
         return child
     
+    # ==================== Tree Sorting Algorithm (BST) ====================
+    
+    def insert_sorted(self, value: Any) -> BinaryNode:
+        """
+        Insert a value using the tree sorting algorithm (Binary Search Tree insertion).
+        
+        Algorithm (Baum-Sortier-Algorithmus):
+        1. If tree is empty, create root with the value
+        2. Start at root and compare:
+           - Go left if value < current node value
+           - Go right if value > current node value
+           - Ignore if value = current node value (no duplicates)
+        3. Continue until finding an empty position
+        4. Insert the value at that position
+        
+        Args:
+            value: The value to insert (must be comparable)
+            
+        Returns:
+            The newly created node
+            
+        Raises:
+            TypeError: If values are not comparable
+            
+        Example:
+            >>> tree = BinaryTree()
+            >>> tree.insert_sorted(5)
+            >>> tree.insert_sorted(3)
+            >>> tree.insert_sorted(7)
+            >>> tree.traverse_inorder()  # Returns sorted: [3, 5, 7]
+        """
+        if self.root is None:
+            self.set_root(value)
+            return self.root
+        
+        return self._insert_sorted_recursive(self.root, value)
+    
+    def _insert_sorted_recursive(self, node: BinaryNode, value: Any) -> Optional[BinaryNode]:
+        """
+        Helper method for recursive BST insertion.
+        
+        Args:
+            node: Current node to compare with
+            value: Value to insert
+            
+        Returns:
+            The newly created node, or None if value is duplicate
+        """
+        try:
+            if value < node.data:
+                # Go left
+                if node.left is None:
+                    return self.insert_left(node, value)
+                else:
+                    return self._insert_sorted_recursive(node.left, value)
+            elif value > node.data:
+                # Go right
+                if node.right is None:
+                    return self.insert_right(node, value)
+                else:
+                    return self._insert_sorted_recursive(node.right, value)
+            else:
+                # value == node.data, ignore duplicates
+                return None
+        except TypeError as e:
+            raise TypeError(f"Cannot compare values: {value} and {node.data}. Values must support <, >, = comparisons.") from e
+    
+    @classmethod
+    def from_sorted_values(cls, values: List[Any]) -> 'BinaryTree':
+        """
+        Create a Binary Search Tree from a list of values using tree sorting algorithm.
+        
+        This method applies the Baum-Sortier-Algorithmus to sort values into a BST.
+        Reading the tree In-Order will give the sorted sequence.
+        
+        Args:
+            values: List of comparable values
+            
+        Returns:
+            A new BinaryTree with values inserted using BST rules
+            
+        Example:
+            >>> tree = BinaryTree.from_sorted_values([5, 3, 7, 1, 9, 4])
+            >>> tree.traverse_inorder()  # Returns: [1, 3, 4, 5, 7, 9]
+        """
+        tree = cls()
+        for value in values:
+            tree.insert_sorted(value)
+        return tree
+    
     # ==================== Traversal Methods ====================
     
     def traverse_preorder(self, node: Optional[BinaryNode] = None) -> List[Any]:
@@ -792,6 +882,88 @@ if __name__ == "__main__":
     print(f"   Is Complete: {unbalanced.is_complete()}")
     print(f"   Is Perfect: {unbalanced.is_perfect()}")
     print(f"   Is Balanced: {unbalanced.is_balanced()}")
+    
+    print("\n" + "=" * 80)
+    print("EXAMPLE 10: Tree Sorting Algorithm (Baum-Sortier-Algorithmus)")
+    print("=" * 80)
+    
+    print("\nSorting Algorithm - Inserting values one by one:")
+    unsorted = [5, 3, 7, 1, 9, 4, 6]
+    print(f"Values to insert: {unsorted}")
+    
+    sort_tree = BinaryTree()
+    for val in unsorted:
+        sort_tree.insert_sorted(val)
+        print(f"  Inserted {val}")
+    
+    print("\nResulting Binary Search Tree:")
+    sort_tree.print_tree()
+    
+    print("\nTraversals:")
+    print(f"  Pre-order:  {sort_tree.traverse_preorder()}")
+    print(f"  In-order:   {sort_tree.traverse_inorder()}  ← Sorted!")
+    print(f"  Post-order: {sort_tree.traverse_postorder()}")
+    
+    print("\n" + "=" * 80)
+    print("EXAMPLE 11: Batch Sorting with from_sorted_values()")
+    print("=" * 80)
+    
+    unsorted_batch = [8, 3, 10, 1, 6, 14, 4, 7, 13]
+    print(f"\nInput (unsorted): {unsorted_batch}")
+    
+    bst = BinaryTree.from_sorted_values(unsorted_batch)
+    
+    print("\nBinary Search Tree structure:")
+    bst.print_tree()
+    
+    sorted_output = bst.traverse_inorder()
+    print(f"\nSorted output (In-order): {sorted_output}")
+    print(f"Python sorted():          {sorted(unsorted_batch)}")
+    print(f"Match: {sorted_output == sorted(unsorted_batch)}")
+    
+    print("\n" + "=" * 80)
+    print("EXAMPLE 12: Sorting with Duplicates")
+    print("=" * 80)
+    
+    with_dupes = [5, 3, 7, 3, 5, 9, 1, 7]
+    print(f"\nInput with duplicates: {with_dupes}")
+    
+    bst_dupes = BinaryTree.from_sorted_values(with_dupes)
+    
+    print("\nTree structure (duplicates ignored):")
+    bst_dupes.print_tree()
+    
+    result = bst_dupes.traverse_inorder()
+    unique_sorted = sorted(set(with_dupes))
+    
+    print(f"\nOutput: {result}")
+    print(f"Unique sorted: {unique_sorted}")
+    print(f"Match: {result == unique_sorted}")
+    print("\nNote: Duplicates are ignored as per algorithm specification (k₁ = k₀)")
+    
+    print("\n" + "=" * 80)
+    print("EXAMPLE 13: Sorting Different Data Types")
+    print("=" * 80)
+    
+    # Sorting strings
+    print("\n1. Sorting strings (lexicographic order):")
+    words = ["dog", "cat", "elephant", "ant", "bear"]
+    print(f"   Input: {words}")
+    
+    word_tree = BinaryTree.from_sorted_values(words)
+    word_result = word_tree.traverse_inorder()
+    
+    print(f"   Sorted: {word_result}")
+    
+    # Sorting floats
+    print("\n2. Sorting floats:")
+    floats = [3.14, 2.71, 1.41, 2.0, 3.0]
+    print(f"   Input: {floats}")
+    
+    float_tree = BinaryTree.from_sorted_values(floats)
+    float_result = float_tree.traverse_inorder()
+    
+    print(f"   Sorted: {float_result}")
     
     print("\n" + "=" * 80)
     print("All examples completed!")
