@@ -145,14 +145,14 @@ tree.traverse_levelorder()  # [1, 2, 3, 4, 5]
 
 ### Generators vs Lists
 
-The `iter_*` generator methods are memory-efficient alternatives to `traverse_*` methods:
+BinaryTree inherits `iter_*` generator methods from Tree as memory-efficient alternatives:
 
 ```python
 # List-based: builds full list in memory
 result = tree.traverse_inorder()  # [4, 2, 5, 1, 3]
 print(result[0])                   # 4
 
-# Generator: yields one node at a time
+# Generator (inherited from Tree): yields one node at a time
 for value in tree.iter_inorder():
     print(value)                   # 4, 2, 5, 1, 3...
     if value == 2:
@@ -350,11 +350,11 @@ Creates a binary tree, optionally with root data.
 - `traverse_postorder(node=None)`: Post-order traversal (Left → Right → Root)
 - `traverse_levelorder()`: Level-order traversal (breadth-first)
 
-**Traversals (Generators - Memory-efficient, allow early stopping):**
-- `iter_preorder(node=None)`: Pre-order generator (Root → Left → Right)
-- `iter_inorder(node=None)`: In-order generator (Left → Root → Right)
-- `iter_postorder(node=None)`: Post-order generator (Left → Right → Root)
-- `iter_levelorder()`: Level-order generator (breadth-first)
+**Traversals (Generators - Inherited from Tree):**
+- `iter_preorder(node=None)`: Memory-efficient generator (Root → Left → Right)
+- `iter_inorder(node=None)`: Memory-efficient generator (Left → Root → Right)
+- `iter_postorder(node=None)`: Memory-efficient generator (Left → Right → Root)
+- `iter_levelorder()`: Memory-efficient generator (breadth-first)
 
 **Binary Properties:**
 - `get_height(node=None)`: Get tree/subtree height
