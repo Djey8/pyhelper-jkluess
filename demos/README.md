@@ -1,6 +1,8 @@
 # PyHelper Demos
 
-This directory contains comprehensive, educational demonstration files for all data structures in the PyHelper package. Each demo file is a standalone tutorial covering all aspects of that data structure with practical examples and clear explanations.
+This directory contains **comprehensive, educational demonstration files** for all data structures in the PyHelper package. Each demo file is a **standalone tutorial** covering all aspects of that data structure with practical examples, clear explanations, and real-world use cases.
+
+**Perfect for:** Learning data structures, teaching computer science, understanding implementation trade-offs, or exploring practical applications.
 
 ## Available Demos
 
