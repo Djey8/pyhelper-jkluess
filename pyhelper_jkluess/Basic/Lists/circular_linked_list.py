@@ -168,23 +168,5 @@ class CircularLinkedList:
             if temp == self.head:
                 break
         print("(back to start)")
-        
-
-# Example usage
-if __name__ == "__main__":
-    cll = CircularLinkedList()
-    cll.append(1)
-    cll.append(2)
-    cll.append(3)
-    cll.append('a')
-    
-    cll.print_list()
-    
-    print("\nNode with value 2 is deleted:")
-    cll.delete(2) # Delete node with value 2
-    cll.print_list()
-    print("\nNode with value 5 is appended:")
-    cll.append(5)
-    cll.print_list() # Output list again
     
     

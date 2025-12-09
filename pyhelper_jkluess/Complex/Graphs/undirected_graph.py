@@ -206,7 +206,3 @@ def main():
     graph.print_graph_analysis()
     
     print("\n=== Tests completed ===")
-
-
-if __name__ == "__main__":
-    main()

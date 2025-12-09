@@ -126,10 +126,26 @@ sl.add(20)
 print(sl.find(10))  # 10
 ```
 
+## Learning & Demos
+
+**New to data structures?** Start with the comprehensive demo files:
+
+```bash
+python demos/linked_lists_demo.py  # Start here: basic linear structures
+python demos/tree_demo.py          # Hierarchical data
+python demos/binary_tree_demo.py   # Binary trees and BSTs
+python demos/heap_demo.py          # Priority queues and heap sort
+python demos/skip_lists_demo.py    # Probabilistic balanced structures
+python demos/graph_demo.py         # Network analysis and algorithms
+```
+
+Each demo is a **complete tutorial** with 5-14 examples, explanations, and real-world use cases. See **[demos/README.md](demos/README.md)** for the full learning path.
+
 ## Project Structure
 
 ```
 pyhelper-jkluess/          # Repository root
+├── demos/                # 📚 6 comprehensive tutorial files (START HERE!)
 ├── pyhelper_jkluess/     # Main package (import as: import pyhelper_jkluess)
 │   ├── Basic/            # Linear structures: Lists (Linked, Double, Circular)
 │   │   └── Lists/        # Production-ready list implementations
@@ -137,7 +153,7 @@ pyhelper-jkluess/          # Repository root
 │       ├── Graphs/       # Network structures (Unified Graph + 4 types)
 │       ├── Trees/        # Hierarchical structures (Tree, Node)
 │       └── SkipLists/    # Probabilistic structures (2 types)
-└── tests/                # 564 comprehensive tests
+└── tests/                # 747 comprehensive tests
 ```
 
 ## Documentation by Data Structure Category
@@ -168,7 +184,7 @@ pyhelper-jkluess/          # Repository root
 ## Testing
 
 ```bash
-pytest tests/ -v  # 564 comprehensive tests
+pytest tests/ -v  # 747 comprehensive tests
 ```
 
 ## Contributing

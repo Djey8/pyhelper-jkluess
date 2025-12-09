@@ -424,7 +424,3 @@ def main():
     print(f"\n   Weighted House of Nikolaus has {house_graph.vertex_count()} vertices and {house_graph.edge_count()} weighted directed edges")
     
     print("\n=== WeightedDirectedGraph tests completed ===")
-
-
-if __name__ == "__main__":
-    main()

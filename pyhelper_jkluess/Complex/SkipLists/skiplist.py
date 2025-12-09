@@ -228,17 +228,3 @@ class SkipList:
                     break
                 update[i].forward[i] = current.forward[i]
     
-if __name__ == "__main__":
-    # Test SkipList
-    print("Testing SkipList:")
-    sl = SkipList()
-    sl.insert(1, "one")
-    sl.insert(2, "two")
-    sl.insert(3, "three")
-    
-    print(f"Search 2: {sl.search(2)}")
-    print(f"Search 4: {sl.search(4)}")
-    
-    sl.delete(2)
-    print(f"After deleting 2: {sl.search(2)}")
-    
