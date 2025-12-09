@@ -92,6 +92,12 @@ tree.traverse_inorder()               # First child → Root → Others
 tree.traverse_postorder()             # Children → Root (DFS)
 tree.traverse_levelorder()            # Level-by-level (BFS)
 
+# Memory-efficient generators (yield nodes one at a time)
+for node in tree.iter_preorder():     # Generator version
+    print(node.data)
+    if node.data == "target":
+        break                         # Early stopping without building full list
+
 # Search and paths
 tree.find_node("A")                   # Find node by data
 tree.get_ancestors(node)              # Get all ancestors
@@ -362,11 +368,15 @@ print(f"ICs: {[n.data for n in org.get_leaves()]}")
 - `get_leaves()` - All leaves
 - `get_inner_nodes()` - All inner nodes
 
-**Traversals (4):**
-- `traverse_preorder()` - Root → Children
-- `traverse_inorder()` - First child → Root → Others
-- `traverse_postorder()` - Children → Root
-- `traverse_levelorder()` - Level-by-level
+**Traversals (8):**
+- `traverse_preorder()` - Root → Children (returns list)
+- `traverse_inorder()` - First child → Root → Others (returns list)
+- `traverse_postorder()` - Children → Root (returns list)
+- `traverse_levelorder()` - Level-by-level (returns list)
+- `iter_preorder()` - Generator: Root → Children (memory-efficient)
+- `iter_inorder()` - Generator: First child → Root → Others
+- `iter_postorder()` - Generator: Children → Root
+- `iter_levelorder()` - Generator: Level-by-level
 
 **Search & Paths (4):**
 - `find_node(data)` - Find by data

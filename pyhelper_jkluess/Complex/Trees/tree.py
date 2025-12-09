@@ -782,6 +782,121 @@ class Tree:
         
         return result
     
+    def iter_preorder(self, node: Optional[Node] = None):
+        """
+        Generator for preorder traversal.
+        Yields nodes one at a time (memory efficient).
+        
+        Order: Root -> Children (left to right)
+        
+        Args:
+            node: Start node (default: root)
+            
+        Yields:
+            Node data in preorder
+            
+        Example:
+            >>> for value in tree.iter_preorder():
+            ...     print(value)
+        """
+        if node is None:
+            node = self.root
+        
+        if node is None:
+            return
+        
+        yield node.data
+        for child in node.children:
+            yield from self.iter_preorder(child)
+    
+    def iter_postorder(self, node: Optional[Node] = None):
+        """
+        Generator for postorder traversal.
+        Yields nodes one at a time (memory efficient).
+        
+        Order: Children (left to right) -> Root
+        
+        Args:
+            node: Start node (default: root)
+            
+        Yields:
+            Node data in postorder
+            
+        Example:
+            >>> for value in tree.iter_postorder():
+            ...     print(value)
+        """
+        if node is None:
+            node = self.root
+        
+        if node is None:
+            return
+        
+        for child in node.children:
+            yield from self.iter_postorder(child)
+        yield node.data
+    
+    def iter_levelorder(self):
+        """
+        Generator for level-order (breadth-first) traversal.
+        Yields nodes one at a time (memory efficient).
+        
+        Order: Level by level from top to bottom
+        
+        Yields:
+            Node data in level-order
+            
+        Example:
+            >>> for value in tree.iter_levelorder():
+            ...     print(value)
+        """
+        if self.is_empty():
+            return
+        
+        queue = deque([self.root])
+        
+        while queue:
+            node = queue.popleft()
+            yield node.data
+            queue.extend(node.children)
+    
+    def iter_inorder(self, node: Optional[Node] = None):
+        """
+        Generator for inorder traversal.
+        Yields nodes one at a time (memory efficient).
+        
+        Order: First child -> Root -> Remaining children
+        
+        Args:
+            node: Start node (default: root)
+            
+        Yields:
+            Node data in inorder
+            
+        Example:
+            >>> for value in tree.iter_inorder():
+            ...     print(value)
+        """
+        if node is None:
+            node = self.root
+        
+        if node is None:
+            return
+        
+        if node.children:
+            # Process first child
+            yield from self.iter_inorder(node.children[0])
+            
+            # Process root
+            yield node.data
+            
+            # Process remaining children
+            for child in node.children[1:]:
+                yield from self.iter_inorder(child)
+        else:
+            # Leaf node
+            yield node.data
+    
     def find_node(self, data: Any) -> Optional[Node]:
         """
         Finds a node with specific data.
@@ -1428,234 +1543,3 @@ class Tree:
     def __repr__(self) -> str:
         return self.__str__()
 
-
-# Example usage
-if __name__ == "__main__":
-    print("=" * 80)
-    print("EXAMPLE 1: Create Tree Manually")
-    print("=" * 80)
-    
-    # Create tree
-    tree = Tree("Root")
-    
-    # Add children to root
-    child_a = tree.add_child(tree.root, "A")
-    child_b = tree.add_child(tree.root, "B")
-    child_c = tree.add_child(tree.root, "C")
-    
-    # Add children to A
-    child_a1 = tree.add_child(child_a, "A1")
-    child_a2 = tree.add_child(child_a, "A2")
-    
-    # Add children to B
-    child_b1 = tree.add_child(child_b, "B1")
-    
-    # Visualization
-    print("=== Tree Structure ===")
-    tree.print_tree()
-    
-    print("\n=== Statistics ===")
-    stats = tree.get_statistics()
-    for key, value in stats.items():
-        print(f"{key}: {value}")
-    
-    print(f"\n=== Tree Property (m = n - 1) ===")
-    print(f"Nodes (n): {tree.get_node_count()}")
-    print(f"Edges (m): {tree.get_edge_count()}")
-    print(f"m = n - 1? {tree.verify_tree_property()}")
-    
-    print("\n=== Leaves ===")
-    leaves = tree.get_leaves()
-    print([leaf.data for leaf in leaves])
-    
-    print("\n=== Inner Nodes ===")
-    inner = tree.get_inner_nodes()
-    print([node.data for node in inner])
-    
-    print("\n=== Levels ===")
-    levels = tree.get_all_levels()
-    for depth, nodes in levels.items():
-        print(f"Level {depth}: {[node.data for node in nodes]}")
-    
-    print("\n=== Traversals ===")
-    print(f"Preorder: {tree.traverse_preorder()}")
-    print(f"In-Order: {tree.traverse_inorder()}")
-    print(f"Postorder: {tree.traverse_postorder()}")
-    print(f"Level-Order: {tree.traverse_levelorder()}")
-    
-    
-    print("\n=== Path Between Nodes ===")
-    path = tree.find_path(child_a2, child_b1)
-    if path:
-        print(f"Path from A2 to B1: {[node.data for node in path]}")
-    
-    print(f"\n=== Depth of Node A2 ===")
-    print(f"Depth: {tree.get_depth(child_a2)}")
-    
-    print(f"\n=== Tree Height ===")
-    print(f"Height: {tree.get_height()}")
-    
-    # Visualize tree with root at the top
-    print("\n=== Tree Visualization (Root at Top) ===")
-    tree.visualize(title="Tree with Root at Top", root_position="top")
-
-    print("\n" + "=" * 80)
-    print("EXAMPLE 2: Create Tree from Adjacency Matrix")
-    print("=" * 80)
-    
-    # Define adjacency matrix
-    # Tree structure: 0 -> 1, 0 -> 2, 1 -> 3, 1 -> 4
-    matrix = [
-        [0, 1, 1, 0, 0],  # Node 0 (root) has children 1, 2
-        [0, 0, 0, 1, 1],  # Node 1 has children 3, 4
-        [0, 0, 0, 0, 0],  # Node 2 has no children (leaf)
-        [0, 0, 0, 0, 0],  # Node 3 has no children (leaf)
-        [0, 0, 0, 0, 0]   # Node 4 has no children (leaf)
-    ]
-    
-    # Optional: provide custom node labels
-    labels = ['Root', 'A', 'B', 'A1', 'A2']
-    
-    tree2 = Tree.from_adjacency_matrix(matrix, labels)
-    
-    print("\nAdjacency Matrix:")
-    for row in matrix:
-        print(row)
-    
-    print("\nTree Structure:")
-    tree2.print_tree()
-    
-    print("\nStatistics:")
-    stats2 = tree2.get_statistics()
-    print(f"Nodes: {stats2['node_count']}")
-    print(f"Edges: {stats2['edge_count']}")
-    print(f"Height: {stats2['height']}")
-    print(f"Tree property (m = n - 1): {tree2.verify_tree_property()}")
-    
-    print("\n" + "=" * 80)
-    print("EXAMPLE 3: Create Tree from Adjacency List")
-    print("=" * 80)
-    
-    # Define adjacency list
-    adj_list = {
-        'Root': ['A', 'B', 'C'],
-        'A': ['A1', 'A2'],
-        'B': ['B1'],
-        'C': [],
-        'A1': [],
-        'A2': [],
-        'B1': []
-    }
-    
-    tree3 = Tree.from_adjacency_list(adj_list, 'Root')
-    
-    print("\nAdjacency List:")
-    for parent, children in adj_list.items():
-        print(f"  {parent}: {children}")
-    
-    print("\nTree Structure:")
-    tree3.print_tree()
-    
-    print("\nStatistics:")
-    stats3 = tree3.get_statistics()
-    print(f"Nodes: {stats3['node_count']}")
-    print(f"Edges: {stats3['edge_count']}")
-    print(f"Height: {stats3['height']}")
-    
-    print("\nTraversals:")
-    print(f"Preorder: {tree3.traverse_preorder()}")
-    print(f"Level-order: {tree3.traverse_levelorder()}")
-    
-    print("\n" + "=" * 80)
-    print("EXAMPLE 4: Export Tree to Adjacency Matrix")
-    print("=" * 80)
-    
-    # Use tree from Example 1
-    print("\nOriginal Tree Structure:")
-    tree.print_tree()
-    
-    matrix_export = tree.get_adjacency_matrix()
-    print("\nExported Adjacency Matrix:")
-    for i, row in enumerate(matrix_export):
-        print(f"  Node {i}: {row}")
-    
-    print(f"\nMatrix dimensions: {len(matrix_export)} x {len(matrix_export[0])}")
-    print("Note: matrix[i][j] = 1 means node i is the parent of node j")
-    
-    print("\n" + "=" * 80)
-    print("EXAMPLE 5: Export Tree to Adjacency List")
-    print("=" * 80)
-    
-    # Use tree from Example 1
-    print("\nOriginal Tree Structure:")
-    tree.print_tree()
-    
-    adj_list_export = tree.get_adjacency_list()
-    print("\nExported Adjacency List:")
-    for parent, children in adj_list_export.items():
-        print(f"  {parent}: {children}")
-    
-    print(f"\nTotal nodes in adjacency list: {len(adj_list_export)}")
-    
-    print("\n" + "=" * 80)
-    print("EXAMPLE 6: Round-trip Conversion (Matrix -> Tree -> Matrix)")
-    print("=" * 80)
-    
-    # Create tree from matrix
-    original_matrix = [
-        [0, 1, 1, 0],
-        [0, 0, 0, 1],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0]
-    ]
-    labels_rt = ['X', 'Y', 'Z', 'W']
-    
-    print("Original Matrix:")
-    for row in original_matrix:
-        print(f"  {row}")
-    
-    tree_rt = Tree.from_adjacency_matrix(original_matrix, labels_rt)
-    print("\nTree Structure:")
-    tree_rt.print_tree()
-    
-    exported_matrix = tree_rt.get_adjacency_matrix()
-    print("\nExported Matrix:")
-    for row in exported_matrix:
-        print(f"  {row}")
-    
-    # Verify they match
-    matrices_match = original_matrix == exported_matrix
-    print(f"\nMatrices match: {matrices_match}")
-    
-    print("\n" + "=" * 80)
-    print("EXAMPLE 7: Round-trip Conversion (List -> Tree -> List)")
-    print("=" * 80)
-    
-    # Create tree from adjacency list
-    original_list = {
-        'P': ['Q', 'R'],
-        'Q': ['S'],
-        'R': [],
-        'S': []
-    }
-    
-    print("Original Adjacency List:")
-    for k, v in original_list.items():
-        print(f"  {k}: {v}")
-    
-    tree_rt2 = Tree.from_adjacency_list(original_list, 'P')
-    print("\nTree Structure:")
-    tree_rt2.print_tree()
-    
-    exported_list = tree_rt2.get_adjacency_list()
-    print("\nExported Adjacency List:")
-    for k, v in exported_list.items():
-        print(f"  {k}: {v}")
-    
-    # Verify they match
-    lists_match = original_list == exported_list
-    print(f"\nLists match: {lists_match}")
-    
-    print("\n" + "=" * 80)
-    print("All examples completed!")
-    print("=" * 80)
