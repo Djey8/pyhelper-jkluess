@@ -1762,7 +1762,3 @@ def main():
     g_vis_dir.visualize(title="Test Directed Graph", figsize=(10, 8))
     
     print("=== All tests completed ===")
-
-
-if __name__ == "__main__":
-    main()

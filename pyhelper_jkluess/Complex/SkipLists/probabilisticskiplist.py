@@ -262,19 +262,3 @@ class ProbabilisticSkipList:
             result.append(node.data)
             node = node.next_nodes[0]
         return result
-    
-if __name__ == "__main__":    
-    # Test ProbabilisticSkipList
-    print("Testing ProbabilisticSkipList:")
-    psl = ProbabilisticSkipList()
-    psl.add(1)
-    psl.add(2)
-    psl.add(3)
-    psl.add(5)
-    
-    print(f"Display: {psl.display()}")
-    print(f"Find 3: {psl.find(3)}")
-    print(f"Find 4: {psl.find(4)}")
-    
-    psl.remove(3)
-    print(f"After removing 3: {psl.display()}")

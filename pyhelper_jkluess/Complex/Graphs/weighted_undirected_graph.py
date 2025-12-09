@@ -389,7 +389,3 @@ def main():
         print("   Matplotlib or NetworkX not available for visualization")
     
     print("\n=== All weighted graph tests completed ===")
-
-
-if __name__ == "__main__":
-    main()
