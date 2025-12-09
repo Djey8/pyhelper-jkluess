@@ -84,9 +84,15 @@ Each demo file follows a consistent structure:
 
 ## Additional Resources
 
-- **examples/iterator_demo.py** - Demonstrates iterator patterns across data structures
+### Examples Folder
+The `examples/` directory contains additional specialized demonstrations:
+- **examples/iterator_demo.py** - Deep dive into iterator patterns and generator usage across all data structures
+
+This file demonstrates the advanced iterator functionality and shows how to use generators efficiently for memory-constrained scenarios.
+
+### Other Resources
 - Source code documentation in each module
-- Comprehensive test suite in `tests/` directory
+- Comprehensive test suite in `tests/` directory (747 tests)
 
 ## Features
 
