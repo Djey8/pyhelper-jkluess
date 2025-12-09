@@ -44,31 +44,31 @@ def example_1_singly_linked_list():
     print("✓ Created empty singly linked list")
     
     # Append elements
-    print("\n📥 Appending elements: 1, 2, 3")
-    for val in [1, 2, 3]:
+    print("\n📥 Appending elements: 1, 2, 3, 4, 5")
+    for val in [1, 2, 3, 4, 5]:
         ll.append(val)
     ll.print_list()
     
-    # Prepend
-    print("\n📥 Prepending 0:")
-    ll.prepend(0)
+    # Remove by index
+    print("\n❌ Removing element at index 2 (value 3):")
+    ll.remove(2)
     ll.print_list()
     
-    # Insert at position
-    print("\n📥 Inserting 1.5 at position 2:")
-    ll.insert(2, 1.5)
+    # Remove head
+    print("\n❌ Removing element at index 0 (head):")
+    ll.remove(0)
     ll.print_list()
     
-    # Delete
-    print("\n❌ Deleting value 1.5:")
-    ll.delete(1.5)
+    # Append more
+    print("\n📥 Appending 6 and 7:")
+    ll.append(6)
+    ll.append(7)
     ll.print_list()
     
-    # Search
-    print("\n🔍 Searching for value 2:")
-    print(f"  Found: {ll.search(2)}")
-    
-    print(f"\n📊 List length: {ll.get_length()}")
+    print("\n💡 LinkedList operations:")
+    print("  • append(data) - Add to end (O(n))")
+    print("  • remove(index) - Remove by index (O(n))")
+    print("  • print_list() - Display all elements")
     
     return ll
 
@@ -90,8 +90,8 @@ def example_2_doubly_linked_list():
     print("✓ Created empty doubly linked list")
     
     # Append elements
-    print("\n📥 Appending elements: A, B, C, D")
-    for val in ['A', 'B', 'C', 'D']:
+    print("\n📥 Appending elements: A, B, C, D, E")
+    for val in ['A', 'B', 'C', 'D', 'E']:
         dll.append(val)
     dll.print_list()
     
@@ -100,22 +100,26 @@ def example_2_doubly_linked_list():
     dll.print_list()
     
     print("\n← Backward traversal:")
-    dll.print_list_reverse()
+    dll.print_list_backwards()
     
-    # Delete from middle
-    print("\n❌ Deleting 'B' (easier with doubly linked list):")
-    dll.delete('B')
+    # Remove from middle (index 2 = 'C')
+    print("\n❌ Removing element at index 2 ('C'):")
+    dll.remove(2)
     dll.print_list()
     
-    # Insert after specific node
-    print("\n📥 Inserting 'B2' after 'A':")
-    dll.insert_after('A', 'B2')
+    # Remove head (index 0)
+    print("\n❌ Removing element at index 0 (head 'A'):")
+    dll.remove(0)
     dll.print_list()
+    
+    # Show backward again
+    print("\n← Backward after deletions:")
+    dll.print_list_backwards()
     
     print("\n💡 Doubly Linked List Advantages:")
     print("  • Bidirectional traversal")
-    print("  • Easier deletion (no need to track previous)")
-    print("  • Can traverse backwards")
+    print("  • Can traverse forwards and backwards")
+    print("  • Each node has prev and next pointers")
     print("  • Extra space for prev pointer")
     
     return dll
@@ -207,15 +211,15 @@ def example_4_comparison():
 
 def example_5_operations():
     """
-    Example 5: Common operations
+    Example 5: Common operations demonstration
     
     Demonstrates:
-    - Length calculation
-    - Searching
+    - Building lists
+    - Removing elements
     - Printing
     """
     print("\n" + "=" * 80)
-    print("EXAMPLE 5: Common Operations")
+    print("EXAMPLE 5: Common Operations Summary")
     print("=" * 80)
     
     # Create sample list
@@ -226,22 +230,22 @@ def example_5_operations():
         ll.append(val)
     ll.print_list()
     
-    # Length
-    print(f"\n📏 Length: {ll.get_length()}")
-    
-    # Search
-    print("\n🔍 Searching:")
-    for val in [30, 60]:
-        found = ll.search(val)
-        print(f"  {val}: {'Found' if found else 'Not found'}")
-    
-    # Delete multiple
-    print("\n❌ Deleting 20 and 40:")
-    ll.delete(20)
-    ll.delete(40)
+    # Remove operations
+    print("\n❌ Removing elements at index 1, then index 2:")
+    ll.remove(1)  # Removes 20
+    ll.print_list()
+    ll.remove(2)  # Removes 40 (now at index 2)
     ll.print_list()
     
-    print(f"\n📏 New length: {ll.get_length()}")
+    print("\n📥 Appending 60 and 70:")
+    ll.append(60)
+    ll.append(70)
+    ll.print_list()
+    
+    print("\n💡 Summary:")
+    print("  • LinkedList: append(), remove(index), print_list()")
+    print("  • DoubleLinkedList: same + print_list_backwards()")
+    print("  • CircularLinkedList: append(), delete(value), print_list()")
 
 
 def main():
