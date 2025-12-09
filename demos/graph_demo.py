@@ -21,6 +21,10 @@ Author: PyHelper JKluess
 Date: December 2025
 """
 
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from pyhelper_jkluess.Complex.Graphs.graph import Graph
 
 
@@ -156,7 +160,7 @@ def example_3_weighted_undirected():
     
     print(f"\n🔍 Berlin connections:")
     neighbors = graph.get_weighted_neighbors('Berlin')
-    for city, distance in neighbors.items():
+    for city, distance in neighbors:
         print(f"  → {city}: {distance} km")
     
     print(f"\n🛤️  Shortest path Berlin → Munich:")
@@ -559,6 +563,12 @@ def example_12_advanced_operations():
 
 def main():
     """Run all examples in sequence"""
+    import sys
+    import io
+    # Fix Windows console encoding for emoji support
+    if sys.platform == 'win32':
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+    
     print("\n")
     print("🌐" * 40)
     print("GRAPH DATA STRUCTURE - COMPREHENSIVE DEMO")

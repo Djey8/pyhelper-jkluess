@@ -18,6 +18,10 @@ Author: PyHelper JKluess
 Date: December 2025
 """
 
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from pyhelper_jkluess.Basic.Lists.linked_list import LinkedList
 from pyhelper_jkluess.Basic.Lists.double_linked_list import DoubleLinkedList
 from pyhelper_jkluess.Basic.Lists.circular_linked_list import CircularLinkedList
@@ -242,6 +246,12 @@ def example_5_operations():
 
 def main():
     """Run all examples in sequence"""
+    import sys
+    import io
+    # Fix Windows console encoding for emoji support
+    if sys.platform == 'win32':
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+    
     print("\n")
     print("🔗" * 40)
     print("LINKED LISTS - COMPREHENSIVE DEMO")

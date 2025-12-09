@@ -18,6 +18,10 @@ Author: PyHelper JKluess
 Date: December 2025
 """
 
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from pyhelper_jkluess.Complex.Trees.binary_tree import BinaryTree
 
 
@@ -425,8 +429,14 @@ def example_10_comparison_with_tree():
 
 def main():
     """Run all examples in sequence"""
+    import sys
+    import io
+    # Fix Windows console encoding for emoji support
+    if sys.platform == 'win32':
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+    
     print("\n")
-    print("🌲" * 40)
+    print("🌳" * 40)
     print("BINARY TREE DATA STRUCTURE - COMPREHENSIVE DEMO")
     print("🌲" * 40)
     
