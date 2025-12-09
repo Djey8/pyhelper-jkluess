@@ -458,6 +458,127 @@ class BinaryTree(Tree):
         
         return result
     
+    def iter_preorder(self, node: Optional[BinaryNode] = None):
+        """
+        Generator for preorder traversal.
+        Yields nodes one at a time (memory efficient).
+        
+        Order: Root -> Left -> Right
+        
+        Args:
+            node: Start node (default: root)
+            
+        Yields:
+            Node data in preorder
+            
+        Example:
+            >>> for value in tree.iter_preorder():
+            ...     print(value)
+        """
+        if node is None:
+            node = self.root
+        
+        if node is None:
+            return
+        
+        yield node.data
+        
+        if node.left:
+            yield from self.iter_preorder(node.left)
+        
+        if node.right:
+            yield from self.iter_preorder(node.right)
+    
+    def iter_inorder(self, node: Optional[BinaryNode] = None):
+        """
+        Generator for inorder traversal.
+        Yields nodes one at a time (memory efficient).
+        
+        Order: Left -> Root -> Right
+        
+        Args:
+            node: Start node (default: root)
+            
+        Yields:
+            Node data in inorder (sorted order for BST)
+            
+        Example:
+            >>> for value in tree.iter_inorder():
+            ...     print(value)
+        """
+        if node is None:
+            node = self.root
+        
+        if node is None:
+            return
+        
+        if node.left:
+            yield from self.iter_inorder(node.left)
+        
+        yield node.data
+        
+        if node.right:
+            yield from self.iter_inorder(node.right)
+    
+    def iter_postorder(self, node: Optional[BinaryNode] = None):
+        """
+        Generator for postorder traversal.
+        Yields nodes one at a time (memory efficient).
+        
+        Order: Left -> Right -> Root
+        
+        Args:
+            node: Start node (default: root)
+            
+        Yields:
+            Node data in postorder
+            
+        Example:
+            >>> for value in tree.iter_postorder():
+            ...     print(value)
+        """
+        if node is None:
+            node = self.root
+        
+        if node is None:
+            return
+        
+        if node.left:
+            yield from self.iter_postorder(node.left)
+        
+        if node.right:
+            yield from self.iter_postorder(node.right)
+        
+        yield node.data
+    
+    def iter_levelorder(self):
+        """
+        Generator for level-order (breadth-first) traversal.
+        Yields nodes one at a time (memory efficient).
+        
+        Order: Level by level from top to bottom
+        
+        Yields:
+            Node data in level-order
+            
+        Example:
+            >>> for value in tree.iter_levelorder():
+            ...     print(value)
+        """
+        if self.is_empty():
+            return
+        
+        queue = deque([self.root])
+        
+        while queue:
+            node = queue.popleft()
+            yield node.data
+            
+            if node.left:
+                queue.append(node.left)
+            if node.right:
+                queue.append(node.right)
+    
     # ==================== Tree Properties (inherited, some overridden for binary specifics) ====================
     
     def get_leaf_count(self) -> int:

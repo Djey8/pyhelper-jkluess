@@ -143,6 +143,27 @@ tree.traverse_levelorder()  # [1, 2, 3, 4, 5]
 - Level-by-level processing
 - Serialization for certain applications
 
+### Generators vs Lists
+
+The `iter_*` generator methods are memory-efficient alternatives to `traverse_*` methods:
+
+```python
+# List-based: builds full list in memory
+result = tree.traverse_inorder()  # [4, 2, 5, 1, 3]
+print(result[0])                   # 4
+
+# Generator: yields one node at a time
+for value in tree.iter_inorder():
+    print(value)                   # 4, 2, 5, 1, 3...
+    if value == 2:
+        break                      # Early stopping - doesn't visit rest of tree
+
+# Use generators for:
+# - Large trees (saves memory)
+# - Early stopping (break when found)
+# - Streaming/processing one at a time
+```
+
 ## Import/Export Features
 
 BinaryTree inherits all import/export methods from the Tree class. These allow converting between different representations.
@@ -323,11 +344,17 @@ Creates a binary tree, optionally with root data.
 - `add_child(parent, data)`: Add child with validation (use insert_left/right instead)
 - `set_root(data)`: Set/replace root
 
-**Traversals:**
+**Traversals (List-based):**
 - `traverse_preorder(node=None)`: Pre-order traversal (Root → Left → Right)
 - `traverse_inorder(node=None)`: In-order traversal (Left → Root → Right)
 - `traverse_postorder(node=None)`: Post-order traversal (Left → Right → Root)
 - `traverse_levelorder()`: Level-order traversal (breadth-first)
+
+**Traversals (Generators - Memory-efficient, allow early stopping):**
+- `iter_preorder(node=None)`: Pre-order generator (Root → Left → Right)
+- `iter_inorder(node=None)`: In-order generator (Left → Root → Right)
+- `iter_postorder(node=None)`: Post-order generator (Left → Right → Root)
+- `iter_levelorder()`: Level-order generator (breadth-first)
 
 **Binary Properties:**
 - `get_height(node=None)`: Get tree/subtree height

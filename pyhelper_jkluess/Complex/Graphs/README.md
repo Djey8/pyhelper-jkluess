@@ -117,10 +117,19 @@ g.find_all_cycles()               # Find all cycles comprehensively
 g.is_acyclic()                    # Check if acyclic
 
 # Search algorithms (all graph types)
-g.dfs("A")                        # Depth-first search from A
+g.dfs("A")                        # Depth-first search from A (returns list)
 g.dfs("A", end="D")              # DFS stopping at D
-g.bfs("A")                        # Breadth-first search from A
+g.bfs("A")                        # Breadth-first search from A (returns list)
 g.bfs("A", end="D")              # BFS stopping at D
+
+# Memory-efficient generators (yield vertices one at a time)
+for vertex in g.iter_dfs("A"):   # Generator: DFS traversal
+    print(vertex)
+    if vertex == "D":
+        break                     # Early stopping without building full list
+for vertex in g.iter_bfs("A"):   # Generator: BFS traversal
+    process(vertex)
+
 g.dijkstra("A")                   # Dijkstra's algorithm from A (weighted only)
                                   # Returns: Dict[vertex: (distance, path)]
 

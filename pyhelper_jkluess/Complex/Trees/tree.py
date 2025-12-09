@@ -782,6 +782,121 @@ class Tree:
         
         return result
     
+    def iter_preorder(self, node: Optional[Node] = None):
+        """
+        Generator for preorder traversal.
+        Yields nodes one at a time (memory efficient).
+        
+        Order: Root -> Children (left to right)
+        
+        Args:
+            node: Start node (default: root)
+            
+        Yields:
+            Node data in preorder
+            
+        Example:
+            >>> for value in tree.iter_preorder():
+            ...     print(value)
+        """
+        if node is None:
+            node = self.root
+        
+        if node is None:
+            return
+        
+        yield node.data
+        for child in node.children:
+            yield from self.iter_preorder(child)
+    
+    def iter_postorder(self, node: Optional[Node] = None):
+        """
+        Generator for postorder traversal.
+        Yields nodes one at a time (memory efficient).
+        
+        Order: Children (left to right) -> Root
+        
+        Args:
+            node: Start node (default: root)
+            
+        Yields:
+            Node data in postorder
+            
+        Example:
+            >>> for value in tree.iter_postorder():
+            ...     print(value)
+        """
+        if node is None:
+            node = self.root
+        
+        if node is None:
+            return
+        
+        for child in node.children:
+            yield from self.iter_postorder(child)
+        yield node.data
+    
+    def iter_levelorder(self):
+        """
+        Generator for level-order (breadth-first) traversal.
+        Yields nodes one at a time (memory efficient).
+        
+        Order: Level by level from top to bottom
+        
+        Yields:
+            Node data in level-order
+            
+        Example:
+            >>> for value in tree.iter_levelorder():
+            ...     print(value)
+        """
+        if self.is_empty():
+            return
+        
+        queue = deque([self.root])
+        
+        while queue:
+            node = queue.popleft()
+            yield node.data
+            queue.extend(node.children)
+    
+    def iter_inorder(self, node: Optional[Node] = None):
+        """
+        Generator for inorder traversal.
+        Yields nodes one at a time (memory efficient).
+        
+        Order: First child -> Root -> Remaining children
+        
+        Args:
+            node: Start node (default: root)
+            
+        Yields:
+            Node data in inorder
+            
+        Example:
+            >>> for value in tree.iter_inorder():
+            ...     print(value)
+        """
+        if node is None:
+            node = self.root
+        
+        if node is None:
+            return
+        
+        if node.children:
+            # Process first child
+            yield from self.iter_inorder(node.children[0])
+            
+            # Process root
+            yield node.data
+            
+            # Process remaining children
+            for child in node.children[1:]:
+                yield from self.iter_inorder(child)
+        else:
+            # Leaf node
+            yield node.data
+    
     def find_node(self, data: Any) -> Optional[Node]:
         """
         Finds a node with specific data.

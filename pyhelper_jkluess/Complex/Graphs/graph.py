@@ -533,6 +533,40 @@ class Graph:
         dfs_recursive(start)
         return result
     
+    def iter_dfs(self, start: Any, end: Optional[Any] = None, visited: Optional[Set[Any]] = None):
+        """
+        Generator for Depth-First Search (DFS).
+        Yields vertices one at a time (memory efficient).
+        
+        Args:
+            start: Starting vertex for the search
+            end: Optional ending vertex. If provided, stops when reached.
+            visited: Set of already visited vertices (for internal use)
+            
+        Yields:
+            Vertices in DFS order
+            
+        Example:
+            >>> for vertex in graph.iter_dfs('A'):
+            ...     print(vertex)
+        """
+        if start not in self._adjacency_list:
+            return
+        
+        if visited is None:
+            visited = set()
+        
+        visited.add(start)
+        yield start
+        
+        if end and start == end:
+            return
+        
+        neighbors = list(self._adjacency_list[start].keys()) if self._weighted else list(self._adjacency_list[start])
+        for neighbor in sorted(neighbors):
+            if neighbor not in visited:
+                yield from self.iter_dfs(neighbor, end, visited)
+    
     def bfs(self, start: Any, end: Optional[Any] = None) -> List[Any]:
         """
         Perform Breadth-First Search (BFS) starting from a given vertex.
@@ -573,6 +607,41 @@ class Graph:
                     queue.append(neighbor)
         
         return result
+    
+    def iter_bfs(self, start: Any, end: Optional[Any] = None):
+        """
+        Generator for Breadth-First Search (BFS).
+        Yields vertices one at a time (memory efficient).
+        
+        Args:
+            start: Starting vertex for the search
+            end: Optional ending vertex. If provided, stops when reached.
+            
+        Yields:
+            Vertices in BFS order
+            
+        Example:
+            >>> for vertex in graph.iter_bfs('A'):
+            ...     print(vertex)
+        """
+        if start not in self._adjacency_list:
+            return
+        
+        queue = [start]
+        visited = {start}
+        
+        while queue:
+            vertex = queue.pop(0)
+            yield vertex
+            
+            if end and vertex == end:
+                return
+            
+            neighbors = list(self._adjacency_list[vertex].keys()) if self._weighted else list(self._adjacency_list[vertex])
+            for neighbor in sorted(neighbors):
+                if neighbor not in visited:
+                    visited.add(neighbor)
+                    queue.append(neighbor)
     
     def find_shortest_path(self, start: Any, end: Any) -> Optional[tuple]:
         """
