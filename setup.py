@@ -6,7 +6,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="pyhelper-jkluess",  # Package name on PyPI
-    version="1.2.0",
+    version="1.3.0",
     author="Jannis Kluess",
     author_email="janniskluess@yahoo.de",
     description="A collection of Python data structures for educational purposes",
