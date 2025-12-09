@@ -146,7 +146,6 @@ Each demo is a **complete tutorial** with 5-14 examples, explanations, and real-
 ```
 pyhelper-jkluess/          # Repository root
 ├── demos/                # 📚 6 comprehensive tutorial files (START HERE!)
-├── examples/             # Advanced iterator patterns
 ├── pyhelper_jkluess/     # Main package (import as: import pyhelper_jkluess)
 │   ├── Basic/            # Linear structures: Lists (Linked, Double, Circular)
 │   │   └── Lists/        # Production-ready list implementations
